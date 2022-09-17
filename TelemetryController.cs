@@ -81,9 +81,11 @@ namespace ACCStatsUploader {
 
                         break;
                     case TRACK_STATE.PIT_BOX:
-                        pitInEvent!.setInBox(unwrappedGraphics);
-                        await sheetController.insertPitInEvent(pitInEvent);
-                        pitInEvent = null;
+                        if (currentState == TRACK_STATE.PIT_LANE) {
+                            pitInEvent!.setInBox(unwrappedGraphics);
+                            await sheetController.insertPitInEvent(pitInEvent);
+                            pitInEvent = null;
+                        }
                         break;
                 }
 
@@ -119,7 +121,8 @@ namespace ACCStatsUploader {
                 await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
                     inGameClock = unwrappedGraphics.Clock,
                     tenMinuteForecast = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min
+                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min,
+                    trackState = (int)unwrappedGraphics.trackGripStatus
                 });
 
                 clockManager.update(unwrappedGraphics);
@@ -138,17 +141,20 @@ namespace ACCStatsUploader {
         }
 
         private TRACK_STATE? checkStateUpdate(Graphics graphicsUpdate) {
-            if (currentState == TRACK_STATE.ON_TRACK && graphicsUpdate.isInPitLane == 1) {
-                return TRACK_STATE.PIT_LANE;
-            } else if (currentState == TRACK_STATE.PIT_LANE && graphicsUpdate.isInPit == 1) {
-                return TRACK_STATE.PIT_BOX;
-            } else if (currentState == TRACK_STATE.PIT_BOX && graphicsUpdate.isInPit == 0) {
-                return TRACK_STATE.PIT_LANE;
-            } else if (currentState == TRACK_STATE.PIT_LANE && graphicsUpdate.isInPitLane == 0) {
-                return TRACK_STATE.ON_TRACK;
+            TRACK_STATE newState;
+            if (graphicsUpdate.isInPit == 1) {
+                newState = TRACK_STATE.PIT_BOX;
+            } else if (graphicsUpdate.isInPitLane == 1) {
+                newState = TRACK_STATE.PIT_LANE;
+            } else {
+                newState = TRACK_STATE.ON_TRACK;
             }
 
-            return null;
+            if (currentState == newState) {
+                return null;
+            }
+
+            return newState;
         }
     }
 }

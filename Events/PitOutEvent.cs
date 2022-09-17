@@ -8,9 +8,11 @@ namespace ACCStatsUploader {
         public float pitBoxOutSessionTime;
         public float outLap;
         public string driverName;
+        public int tyreSet;
 
         public PitOutEvent(Graphics graphicsInfo) {
             pitBoxOutSessionTime = graphicsInfo.sessionTimeLeft;
+            tyreSet = graphicsInfo.currentTyreSet;
         }
 
         public void setPitOut(Graphics graphicsInfo, StaticInfo staticInfo) {

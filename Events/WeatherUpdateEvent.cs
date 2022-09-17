@@ -3,5 +3,6 @@
         public float inGameClock;
         public int tenMinuteForecast;
         public int thirtyMinuteForecast;
+        public int trackState;
     }
 }

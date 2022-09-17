@@ -5,21 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ACCStatsUploader"
         mc:Ignorable="d"
-        Title="MainWindow" Height="250" Width="360" ResizeMode="CanMinimize">
+        Title="MainWindow" Height="220" Width="379" ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0*"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="34*"/>
-            <RowDefinition Height="68*"/>
-            <RowDefinition Height="43*"/>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="90"/>
         </Grid.RowDefinitions>
-        <Button Content="Start" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="30" Width="96" ClickMode="Press" Click="doSomething" Name="StartButton" Grid.Row="2"/>
-        <Label Content="Google Sheet document URL" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="320" Height="26"/>
-        <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="320" Name="GoogleSheetIDTextBox" Text="https://docs.google.com/spreadsheets/d/1crJO1eQF1eM-JNnpMrC8TFupUF0eDXYVas_yRLT7kSM/edit#gid=737977361" Grid.Row="1" Height="18" />
-        <Label Content="Stopped" HorizontalAlignment="Center" VerticalAlignment="Center" Name="StateText" Grid.Row="3" Height="26" Width="54"/>
-        
+        <Label Content="Google Sheet document URL" HorizontalAlignment="Left" VerticalAlignment="Top" Width="320" Height="26" Grid.Row="0" Margin="4,5,0,0" Grid.Column="1"/>
+        <TextBox TextWrapping="Wrap" VerticalAlignment="Center" Name="GoogleSheetIDTextBox" Text="{Binding Mode=TwoWay, Path=googleSheetUrl}" TextChanged="test" Height="18" Grid.Column="1" HorizontalAlignment="Center" Width="360" />
+        <Label Content="Disconnected" HorizontalAlignment="Left" VerticalAlignment="Bottom" Name="GSStateText" Grid.Row="0" Height="26" Width="86" Margin="10,0,0,4" FontWeight="DemiBold" Grid.Column="1" RenderTransformOrigin="0.635,0.489"/>
+        <Button Content="Connect" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="30" Width="96" ClickMode="Press" Click="ToggleGSConnectionButton_click" Name="ConnectToGSButton" Grid.Row="0" Margin="248,0,0,4" Grid.Column="1" />
+        <Line X1="10" X2="350" Stroke="DarkGray" StrokeThickness="1" Grid.Row="1" Margin="0,1,0,0" Grid.ColumnSpan="2" />
+        <Label Content="Stopped" HorizontalAlignment="Right" VerticalAlignment="Bottom" Name="ACStateText" Grid.Row="1" Height="26" Width="86" Margin="0,0,266,17" FontWeight="DemiBold" Grid.Column="1"/>
+        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Width="120" Margin="10,10,0,0" Height="31" Grid.Column="1">
+            Assetto Corsa shared memory reader
+        </TextBlock>
+        <Button Content="Start" HorizontalAlignment="Left" VerticalAlignment="Center" Height="30" Width="96" ClickMode="Press" Click="ToggleSharedMemoryReader" Name="SharedMemoryToggleButton" Grid.Row="1" Margin="248,0,0,0" Grid.Column="1" />
+
     </Grid>
 </Window>

@@ -17,6 +17,8 @@ namespace ACCStatsUploader {
         SheetsService sheetService;
         String documentId = "";
 
+        public bool isConnected = false;
+
         public async void initializeGoogleApi(
             String applicationName,
             String documentId
@@ -38,7 +40,6 @@ namespace ACCStatsUploader {
                     "user",
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
-                Console.WriteLine("Credential file saved to: " + credPath);
             }
 
 
@@ -86,9 +87,41 @@ namespace ACCStatsUploader {
             }
         }
 
+        public async Task setupSheet(int sheetId, int columnsToAdd) {
+            var requests = new List<Request> {
+                new Request {
+                    DeleteDimension = new DeleteDimensionRequest {
+                        Range = new DimensionRange {
+                            StartIndex = 1,
+                            Dimension = "COLUMNS",
+                            SheetId = sheetId,
+                        }
+                    }
+                },
+                new Request {
+                    AppendDimension = new AppendDimensionRequest() {
+                        SheetId = sheetId,
+                        Dimension = "COLUMNS",
+                        Length = columnsToAdd - 1
+                    }
+                }
+            };
+
+            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
+                requests
+            );
+
+            try {
+                await batchUpdateRequest.ExecuteAsync();
+            } catch (System.Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.GetType());
+            }
+        }
+
         public async Task appendRow(
             int sheetId,
-            IList<string> rowData,
+            IList<object> rowData,
             TextFormat? format = null,
             bool autoSize = false
         ) {
@@ -146,22 +179,30 @@ namespace ACCStatsUploader {
             }
         }
 
-        private AppendCellsRequest createAppendRowRequest(int sheetId, IList<string> rowData, TextFormat? format = null) {
+        private AppendCellsRequest createAppendRowRequest(int sheetId, IList<object> rowData, TextFormat? format = null) {
             RowData row = new RowData();
             row.Values = new List<CellData>();
-            var cellDataArray = rowData.Select(test => new CellData {
-                UserEnteredValue = new ExtendedValue {
-                    StringValue = test
-                },
-                TextFormatRuns = new List<TextFormatRun> {
+            var cellDataArray = rowData.Select(test => {
+                var cellData = new CellData();
+                cellData.TextFormatRuns = new List<TextFormatRun> {
                     new TextFormatRun() {
                         Format = format
                     }
+                };
+
+                if (test.GetType() == typeof(string)) {
+                    cellData.UserEnteredValue = new ExtendedValue {
+                        StringValue = (string)test
+                    };
+                } else if (test.GetType() == typeof(int) || test.GetType() == typeof(float)) {
+                    cellData.UserEnteredValue = new ExtendedValue {
+                        NumberValue = (double)test
+                    };
                 }
+
+                return cellData;
             });
-
-
-
+            
             foreach (var cellData in cellDataArray) {
                 row.Values.Add(cellData);
             }

@@ -16,7 +16,7 @@ namespace ACCStatsUploader {
     public class PitstopSheet: Sheet {
         public PitstopSheet() {
             sheetTitle = Sheet.SHEET_NAMES.PITSTOP;
-            columnTitles = new List<string>{
+            columnTitles = new List<object>{
                 "Type",
                 "Inlap",
                 "Outlap",
@@ -24,7 +24,8 @@ namespace ACCStatsUploader {
                 "Pit out session time left",
                 "Pitbox in session time left",
                 "Pitbox out session time left",
-                "Driver"
+                "Driver",
+                "Tyre set"
             };
         }
     }

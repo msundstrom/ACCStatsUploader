@@ -6,7 +6,8 @@ namespace ACCStatsUploader {
     public class LapSheet : Sheet {
         public LapSheet() {
             sheetTitle = Sheet.SHEET_NAMES.LAP;
-            columnTitles = new List<string>{
+            columnTitles = new List<object>{
+                "Session Type",
                 "Lap",
                 "Driver",
                 "Sector 1",

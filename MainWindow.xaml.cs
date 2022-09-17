@@ -23,6 +23,22 @@ namespace ACCStatsUploader {
 
         TelemetryController telemetryController;
 
+        public string googleSheetUrl { get; set; }
+
+        public void test(object sender, TextChangedEventArgs e) {
+            var tb = (TextBox)sender;
+
+            var connectToGSButton = (Button)this.FindName("ConnectToGSButton");
+            string pattern = @"https:\/\/docs\.google\.com\/spreadsheets\/d\/(.*)\/";
+            RegexOptions options = RegexOptions.Multiline;
+
+            if (Regex.Matches(tb.Text, pattern, options).Count == 0) {
+                connectToGSButton.IsEnabled = false;
+            } else {
+                connectToGSButton.IsEnabled = true;
+            }
+        }
+
         public MainWindow() {
             InitializeComponent();
             this.initializeSharedMemoryReader();
@@ -33,56 +49,51 @@ namespace ACCStatsUploader {
             telemetryTimer.Interval = 200;
             telemetryTimer.Stop();
 
-            //this.GoogleSheetIDTextBox.SetBinding
+            this.DataContext = this;
 
-            //this.GoogleSheetIDTextBox.SetBinding(running, new Binding() {
-            //    Path = "Enabled",
-            //    Source = running
-            //});
-
-            //Binding bind = new Binding {
-            //    Source = running,
-            //    ElementName
-            //};
+            googleSheetUrl = "";
         }
 
-
-        public async void doSomething(object sender, EventArgs e) {
-            var stateLabel = (Label)this.FindName("StateText");
-            var startButton = (Button)this.FindName("StartButton");
+        public async void ToggleGSConnectionButton_click(object sender, EventArgs e) {
             var googleSheetURLTextBox = (TextBox)this.FindName("GoogleSheetIDTextBox");
+            var connectionLabel = (Label)this.FindName("GSStateText");
+            var connectionButton = (Button)this.FindName("ConnectToGSButton");
 
-            if (this.running) {
+            connectionLabel.Content = "Setting up...";
+            connectionButton.IsEnabled = false;
+
+            string pattern = @"https:\/\/docs\.google\.com\/spreadsheets\/d\/(.*)\/";
+            RegexOptions options = RegexOptions.Multiline;
+
+            var googleSheetId = Regex.Matches(googleSheetURLTextBox.Text, pattern, options)[0].Groups[1].Value;
+
+            googleSheetURLTextBox.IsEnabled = false;
+            this.gsController.initializeGoogleApi(
+                "SharedMemoryReader",
+                googleSheetId
+            );
+
+            var status = await sheetController.init(gsController);
+
+            GSStateText.Content = status ? "Ready!" : "Disconnected";
+            connectionButton.IsEnabled = status ? false : true;
+        }
+
+        public async void ToggleSharedMemoryReader(object sender, EventArgs e) {
+            var stateLabel = (Label)this.FindName("ACStateText");
+            var startButton = (Button)this.FindName("SharedMemoryToggleButton");
+
+            if (ac.IsRunning) {
                 stateLabel.Content = "Stopped.";
                 startButton.Content = "Start";
-                googleSheetURLTextBox.IsEnabled = true;
+
                 ac.Stop();
             } else {
-                List<String> errorStrings = new List<String>();
-                if (errorStrings.Count > 0) {
-                    MessageBox.Show(String.Join("\n", errorStrings));
-                    return;
-                }
-
-                string pattern = @"https:\/\/docs\.google\.com\/spreadsheets\/d\/(.*)\/";
-                RegexOptions options = RegexOptions.Multiline;
-
-                var googleSheetId = Regex.Matches(googleSheetURLTextBox.Text, pattern, options)[0].Groups[1].Value;
-
-                googleSheetURLTextBox.IsEnabled = false;
-                stateLabel.Content = "Running...";
+                stateLabel.Content = "Started!";
                 startButton.Content = "Stop";
-                this.gsController.initializeGoogleApi(
-                    "SharedMemoryReader",
-                    googleSheetId
-                );
-
-                await sheetController.init(gsController);
 
                 ac.Start();
             }
-
-            this.running = !running;
         }
 
         void initializeSharedMemoryReader() {

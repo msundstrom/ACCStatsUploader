@@ -33,6 +33,7 @@ namespace ACCStatsUploader {
         public int position;
         public int carCount;
         public float gameClock;
+        public string sessionType;
 
         public DamageInfo damageInfo = new DamageInfo();
         public BrakeInfo brakeInfo = new BrakeInfo();
@@ -43,12 +44,34 @@ namespace ACCStatsUploader {
             this.sectorTimes = new List<int>();
             this.lapTime = 0;
             this.lapNumber = initialGraphicsData.completedLaps + 1;
-            tyreInfo = new TyreInfo();
 
+            switch(initialGraphicsData.session) {
+                case ACC_SESSION_TYPE.ACC_UNKNOWN:
+                    sessionType = "UNKNOWN";
+                    break;
+                case ACC_SESSION_TYPE.ACC_PRACTICE:
+                    sessionType = "PRACTICE";
+                    break;
+                case ACC_SESSION_TYPE.ACC_QUALIFY:
+                    sessionType = "QUALIFYING";
+                    break;
+                case ACC_SESSION_TYPE.ACC_RACE:
+                    sessionType = "RACE";
+                    break;
+                case ACC_SESSION_TYPE.ACC_HOTLAP:
+                    sessionType = "HOTLAP";
+                    break;
+                case ACC_SESSION_TYPE.ACC_DRAG:
+                case ACC_SESSION_TYPE.ACC_DRIFT:
+                case ACC_SESSION_TYPE.ACC_TIME_ATTACK:
+                    sessionType = "HOW THE HELL";
+                    break;
+            }
+
+            tyreInfo = new TyreInfo();
 
             lapNumber = initialGraphicsData.completedLaps + 1;
             fuelInfo.lapStart = initialPhysicsData.fuel;
-           
         }
 
         public void update(Physics physicsUpdate) {

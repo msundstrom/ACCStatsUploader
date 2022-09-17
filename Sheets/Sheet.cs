@@ -11,7 +11,7 @@ namespace ACCStatsUploader {
         }
 
         public string sheetTitle;
-        public IList<string> columnTitles;
+        public IList<object> columnTitles;
         public int sheetId;
     }
 }

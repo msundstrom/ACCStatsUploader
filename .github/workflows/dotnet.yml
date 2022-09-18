@@ -24,4 +24,4 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c release -o ACCStatsUploader\bin\publish
+      run: dotnet publish -c release -o bin\publish

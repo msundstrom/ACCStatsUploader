@@ -20,12 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Find and Replace
-      uses: jacobtomlinson/gha-find-replace@v2
-      with:
-        find: "replace_me"
-        replace: "${{ secrets.SHEETS_CREDENTIALS }}"
-        regex: false
-        include: "SheetsAPIController.cs"
+      run: (Get-Content SheetsAPIController.cs) -replace 'replace_me', '${{ secrets.SHEETS_CREDENTIALS }}' | Out-File -encoding UTF8 SheetsAPIController.cs
     - name: Publish
       run: dotnet publish -c release -o bin\publish
     - name: Archive Release

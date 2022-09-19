@@ -21,6 +21,8 @@ jobs:
       run: dotnet restore
     - name: Find and Replace
       run: (Get-Content SheetsAPIController.cs) -replace 'replace_me', '${{ secrets.SHEETS_CREDENTIALS_2 }}' | Out-File -encoding UTF8 SheetsAPIController.cs
+    - name: prit 
+      run: type SheetsAPIController.cs
     - name: Publish
       run: dotnet publish -c release -o bin\publish
     - name: Archive Release

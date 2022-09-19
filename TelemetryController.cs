@@ -69,6 +69,12 @@ namespace ACCStatsUploader {
                         if (currentState == TRACK_STATE.PIT_LANE) {
                             // put out event
                             lapInfo.isOutLap = true;
+                            if (pitOutEvent == null) {
+                                pitOutEvent = new PitOutEvent(unwrappedGraphics);
+                            }
+                            pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
+                            await sheetController.insertPitOutEvent(pitOutEvent);
+                            pitOutEvent = null;
                         }
                         break;
                     case TRACK_STATE.PIT_LANE:
@@ -77,6 +83,7 @@ namespace ACCStatsUploader {
                             lapInfo.isInLap = true;
                         } else {
                             // pit box out event?
+                            pitOutEvent = new PitOutEvent(unwrappedGraphics);
                         }
 
                         break;

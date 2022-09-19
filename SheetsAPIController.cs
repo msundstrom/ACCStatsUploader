@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Linq;
-using System.Windows;
 using System.Threading.Tasks;
+using Google.Apis.Util.Store;
 
 namespace ACCStatsUploader {
     public class SheetsAPIController {
@@ -19,29 +19,44 @@ namespace ACCStatsUploader {
 
         public bool isConnected = false;
 
+        private string asf = "replace_me";
+
+        public static Stream GenerateStreamFromString(string s) {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+
         public async void initializeGoogleApi(
             String applicationName,
             String documentId
         ) {
             this.documentId = documentId;
             UserCredential credential;
+            Stream stream;
 
-            // Load client secrets.
-            using (var stream =
-                   new FileStream("credentials.json", FileMode.Open, FileAccess.Read)) {
-                /* The file token.json stores the user's access and refresh tokens, and is created
-                 automatically when the authorization flow completes for the first time. */
-                string credPath = "token.json";
-                var test = new GoogleClientSecrets();
-       
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
+            if (asf != "replace_me") {
+                stream = GenerateStreamFromString(asf);
+            } else {
+                // Load client secrets.
+                stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read);
             }
 
+            /* The file token.json stores the user's access and refresh tokens, and is created
+                 automatically when the authorization flow completes for the first time. */
+            string credPath = "token.json";
+            var test = new GoogleClientSecrets();
+
+
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.Load(stream).Secrets,
+                Scopes,
+                "user",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
 
             this.sheetService = new SheetsService(new BaseClientService.Initializer() {
                 HttpClientInitializer = credential,

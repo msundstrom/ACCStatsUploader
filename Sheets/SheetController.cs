@@ -181,10 +181,9 @@ namespace ACCStatsUploader {
                     pitOutEvent.pitOutSessionTime,
                     "",
                     pitOutEvent.pitBoxOutSessionTime,
-                    pitOutEvent.driverName
-                },
-                null,
-                true
+                    pitOutEvent.driverName,
+                    pitOutEvent.tyreSet
+                }
             );
         }
 
@@ -196,9 +195,7 @@ namespace ACCStatsUploader {
                     weatherEvent.tenMinuteForecast,
                     weatherEvent.thirtyMinuteForecast,
                     weatherEvent.trackState
-                },
-                null,
-                true
+                }
             );
         }
     }

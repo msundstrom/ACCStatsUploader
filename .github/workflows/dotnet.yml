@@ -29,11 +29,10 @@ jobs:
         type: 'zip'
         filename: 'release.zip'
         path: 'bin\publish'
-    - name: Upload Release
-      uses: ncipollo/release-action@v1
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        artifacts: "release.zip"
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit: $GITHUB_SHA
-        tag: 'latest'
-        allowUpdates: true
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        title: "Development Build"
+        files: "release.zip"

@@ -18,7 +18,7 @@ namespace ACCStatsUploader {
         public void setPitOut(Graphics graphicsInfo, StaticInfo staticInfo) {
             outLap = graphicsInfo.completedLaps + 1;
             pitOutSessionTime = graphicsInfo.sessionTimeLeft;
-            driverName = staticInfo.PlayerName + " " + staticInfo.PlayerName;
+            driverName = staticInfo.PlayerName + " " + staticInfo.PlayerSurname;
         }
     }
 }

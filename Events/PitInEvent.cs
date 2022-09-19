@@ -13,7 +13,7 @@ namespace ACCStatsUploader {
         public PitInEvent(Graphics graphicsInfo, StaticInfo staticInfo) {
             pitInSessionTime = graphicsInfo.sessionTimeLeft;
             inLap = graphicsInfo.completedLaps + 1;
-            driverName = staticInfo.PlayerName + " " + staticInfo.PlayerName;
+            driverName = staticInfo.PlayerName + " " + staticInfo.PlayerSurname;
             tyreSet = graphicsInfo.currentTyreSet;
         }
 

@@ -19,8 +19,6 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@v2
       with:

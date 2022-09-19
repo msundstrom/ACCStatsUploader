@@ -184,17 +184,24 @@ namespace ACCStatsUploader {
             row.Values = new List<CellData>();
             var cellDataArray = rowData.Select(test => {
                 var cellData = new CellData();
-                cellData.TextFormatRuns = new List<TextFormatRun> {
-                    new TextFormatRun() {
-                        Format = format
-                    }
-                };
+
+                if (format != null) {
+                    cellData.TextFormatRuns = new List<TextFormatRun> {
+                        new TextFormatRun() {
+                            Format = format
+                        }
+                    };
+                }
 
                 if (test.GetType() == typeof(string)) {
                     cellData.UserEnteredValue = new ExtendedValue {
                         StringValue = (string)test
                     };
                 } else if (test.GetType() == typeof(int) || test.GetType() == typeof(float)) {
+                    cellData.UserEnteredValue = new ExtendedValue {
+                        NumberValue = Convert.ToDouble(test)
+                    };
+                } else if (test.GetType() == typeof(double)) {
                     cellData.UserEnteredValue = new ExtendedValue {
                         NumberValue = (double)test
                     };

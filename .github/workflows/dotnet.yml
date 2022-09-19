@@ -20,7 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Find and Replace
-      run: (Get-Content SheetsAPIController.cs) -replace 'replace_me', ${{ secrets.SHEETS_CREDENTIALS }} | Out-File -encoding UTF8 SheetsAPIController.cs
+      run: (Get-Content SheetsAPIController.cs) -replace 'replace_me', "${{ secrets.SHEETS_CREDENTIALS }}" | Out-File -encoding UTF8 SheetsAPIController.cs
     - name: Publish
       run: dotnet publish -c release -o bin\publish
     - name: Archive Release

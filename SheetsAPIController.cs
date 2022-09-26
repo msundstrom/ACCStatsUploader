@@ -10,6 +10,7 @@ using System.Threading;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.Util.Store;
+using System.Windows;
 
 namespace ACCStatsUploader {
     public class SheetsAPIController {
@@ -50,6 +51,10 @@ namespace ACCStatsUploader {
             string credPath = "token.json";
             var test = new GoogleClientSecrets();
 
+            if (stream == null) {
+                MessageBox.Show("Missing credentials!");
+                return;
+            }
 
             credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                 GoogleClientSecrets.Load(stream).Secrets,

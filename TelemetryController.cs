@@ -140,7 +140,8 @@ namespace ACCStatsUploader {
                 await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
                     inGameClock = unwrappedGraphics.Clock,
                     tenMinuteForecast = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min
+                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min,
+                    trackState = (int)unwrappedGraphics.trackGripStatus
                 });
 
                 clockManager.update(unwrappedGraphics);

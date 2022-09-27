@@ -54,10 +54,10 @@ namespace ACCStatsUploader {
 
             tyreTemperatures.Add(
                 new Wheels(
-                    physicsUpdate.brakeTemp[0],
-                    physicsUpdate.brakeTemp[1],
-                    physicsUpdate.brakeTemp[2],
-                    physicsUpdate.brakeTemp[3]
+                    physicsUpdate.tyreTemp[0],
+                    physicsUpdate.tyreTemp[1],
+                    physicsUpdate.tyreTemp[2],
+                    physicsUpdate.tyreTemp[3]
                 )
             );
         }

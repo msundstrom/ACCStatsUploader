@@ -76,6 +76,7 @@ namespace ACCStatsUploader {
 
         public void update(Physics physicsUpdate) {
             tyreInfo.update(physicsUpdate);
+            brakeInfo.update(physicsUpdate);
         }
 
         public void update(Graphics graphicsUpdate) {

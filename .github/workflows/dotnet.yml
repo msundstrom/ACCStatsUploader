@@ -27,8 +27,8 @@ jobs:
       uses: thedoctor0/zip-release@main
       with:
         type: 'zip'
-        filename: 'bin\publish\release.zip'
-        directory: 'bin\publish'
+        filename: 'release.zip'
+        path: 'bin\publish'
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

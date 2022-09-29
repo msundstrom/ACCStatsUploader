@@ -202,6 +202,7 @@ namespace ACCStatsUploader {
                 weatherSheet.sheetId,
                 new List<object> {
                     weatherEvent.inGameClock,
+                    weatherEvent.currentWeather,
                     weatherEvent.tenMinuteForecast,
                     weatherEvent.thirtyMinuteForecast,
                     weatherEvent.trackState

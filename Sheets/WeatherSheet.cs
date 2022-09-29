@@ -7,6 +7,7 @@ namespace ACCStatsUploader {
             sheetTitle = Sheet.SHEET_NAMES.WEATHER;
             columnTitles = new List<object>{
                 "Ingame clock",
+                "Current weather",
                 "10 min forecast",
                 "30 min forecast",
                 "Track state"

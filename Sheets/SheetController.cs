@@ -121,6 +121,8 @@ namespace ACCStatsUploader {
                     lapInfo.position,
                     lapInfo.carCount,
                     lapInfo.gameClock,
+                    lapInfo.airTemp,
+                    lapInfo.trackTemp,
                     lapInfo.damageInfo.carDamage.front,
                     lapInfo.damageInfo.carDamage.right,
                     lapInfo.damageInfo.carDamage.rear,

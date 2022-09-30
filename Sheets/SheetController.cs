@@ -87,6 +87,8 @@ namespace ACCStatsUploader {
                 // clear sheet + insert new cols
                 await gsController.setupSheet(weatherSheet.sheetId, weatherSheet.columnTitles.Count);
 
+                await gsController.removeRows(weatherSheet.sheetId);
+
                 await gsController.appendRow(
                     weatherSheet.sheetId,
                     weatherSheet.columnTitles,
@@ -121,6 +123,8 @@ namespace ACCStatsUploader {
                     lapInfo.position,
                     lapInfo.carCount,
                     lapInfo.gameClock,
+                    lapInfo.airTemp,
+                    lapInfo.trackTemp,
                     lapInfo.damageInfo.carDamage.front,
                     lapInfo.damageInfo.carDamage.right,
                     lapInfo.damageInfo.carDamage.rear,
@@ -196,14 +200,19 @@ namespace ACCStatsUploader {
         }
 
         public async Task insertWeatherEvent(WeatherUpdateEvent weatherEvent) {
-            await gsController.appendRow(
+            await gsController.insertRow(
                 weatherSheet.sheetId,
                 new List<object> {
                     weatherEvent.inGameClock,
+                    weatherEvent.currentWeather,
+                    weatherEvent.airTemp,
+                    weatherEvent.trackTemp,
+                    weatherEvent.windSpeed,
+                    weatherEvent.trackState,
                     weatherEvent.tenMinuteForecast,
-                    weatherEvent.thirtyMinuteForecast,
-                    weatherEvent.trackState
-                }
+                    weatherEvent.thirtyMinuteForecast
+                },
+                1
             );
         }
     }

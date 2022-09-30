@@ -23,6 +23,8 @@ namespace ACCStatsUploader {
                 "Position overall",
                 "Car count",
                 "In-game Clock",
+                "Air temp",
+                "Track temp",
                 "Damage front",
                 "Damage right",
                 "Damage rear",

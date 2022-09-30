@@ -34,6 +34,8 @@ namespace ACCStatsUploader {
         public int carCount;
         public float gameClock;
         public string sessionType;
+        public float airTemp;
+        public float trackTemp;
 
         public DamageInfo damageInfo = new DamageInfo();
         public BrakeInfo brakeInfo = new BrakeInfo();
@@ -101,6 +103,9 @@ namespace ACCStatsUploader {
             position = graphicsUpdate.position;
             carCount = graphicsUpdate.activeCars;
             gameClock = graphicsUpdate.Clock;
+
+            airTemp = physicsUpdate.airTemp;
+            trackTemp = physicsUpdate.roadTemp;
 
             timingInfo.endLap(graphicsUpdate);
             fuelInfo.endLap(physicsUpdate);

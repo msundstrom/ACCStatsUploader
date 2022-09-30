@@ -11,6 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.Util.Store;
 using System.Windows;
+using System.DirectoryServices.ActiveDirectory;
+using CommandLine;
 
 namespace ACCStatsUploader {
     public class SheetsAPIController {
@@ -178,6 +180,32 @@ namespace ACCStatsUploader {
             }
         }
 
+        public async Task insertRow(
+            int sheetId,
+            IList<object> rowData,
+            int row
+        ) {
+            var requests = new List<Request> {
+                new Request {
+                    InsertDimension = createInsertRowRequest(sheetId, row-1)
+                },
+                new Request {
+                    UpdateCells = createUpdateCellsRequest(sheetId, rowData, 0, row)
+                }
+            };
+
+            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
+                requests
+            );
+
+            try {
+                var response = await batchUpdateRequest.ExecuteAsync();
+            } catch (System.Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.GetType());
+            }
+        }
+
         public async Task insertEmptyColumns(int sheetId, int count) {
             SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
                 new List<Request> {
@@ -199,7 +227,79 @@ namespace ACCStatsUploader {
             }
         }
 
+        public async Task removeRows(int sheetId) {
+            var requests = new List<Request> {
+                new Request {
+                    DeleteDimension = new DeleteDimensionRequest {
+                        Range = new DimensionRange {
+                            StartIndex = 1,
+                            Dimension = "ROWS",
+                            SheetId = sheetId,
+                        }
+                    }
+                }
+            };
+
+            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
+                requests
+            );
+
+            try {
+                await batchUpdateRequest.ExecuteAsync();
+            } catch (System.Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.GetType());
+            }
+        }
+
         private AppendCellsRequest createAppendRowRequest(int sheetId, IList<object> rowData, TextFormat? format = null) {
+            AppendCellsRequest appendCellsRequest = new AppendCellsRequest();
+            appendCellsRequest.Rows = new[] { createRowData(rowData) };
+            appendCellsRequest.Fields = "*";
+            appendCellsRequest.SheetId = sheetId;
+
+            return appendCellsRequest;
+        }
+
+        private InsertDimensionRequest createInsertRowRequest(int sheetId, int position) {
+            return new InsertDimensionRequest() {
+                Range = new DimensionRange {
+                    SheetId = sheetId,
+                    Dimension = "ROWS",
+                    StartIndex = 1,
+                    EndIndex = 2
+                },
+                InheritFromBefore = true,
+            };
+        }
+
+        private UpdateCellsRequest createUpdateCellsRequest(int sheetId, IList<object> rowData, int column, int row) {
+            return new UpdateCellsRequest() {
+                Rows = new[] { createRowData(rowData) },
+                Range = new GridRange() {
+                    SheetId = sheetId,
+                    StartColumnIndex = column,
+                    EndColumnIndex = column + rowData.Count,
+                    StartRowIndex = row,
+                    EndRowIndex = row + 1,
+                },
+                Fields = "*"
+            };
+        }
+
+        private PasteDataRequest createPasteDataRequest(int sheetId, IList<object> rowData, int column, int row) {
+            return new PasteDataRequest() {
+                Data = String.Join(";", rowData.ToArray()),
+                Type = "PASTE_VALUES",
+                Delimiter = ";",
+                Coordinate = new GridCoordinate() {
+                    SheetId = sheetId,
+                    RowIndex = 1
+                }
+            };
+        }
+
+        private RowData createRowData(IList<object> rowData, TextFormat? format = null) {
             RowData row = new RowData();
             row.Values = new List<CellData>();
             var cellDataArray = rowData.Select(test => {
@@ -229,17 +329,12 @@ namespace ACCStatsUploader {
 
                 return cellData;
             });
-            
+
             foreach (var cellData in cellDataArray) {
                 row.Values.Add(cellData);
             }
 
-            AppendCellsRequest appendCellsRequest = new AppendCellsRequest();
-            appendCellsRequest.Rows = new[] { row };
-            appendCellsRequest.Fields = "*";
-            appendCellsRequest.SheetId = sheetId;
-
-            return appendCellsRequest;
+            return row;
         }
 
         private AutoResizeDimensionsRequest createAutoResizeDimensionsRequest(int sheetId, string dimension) {

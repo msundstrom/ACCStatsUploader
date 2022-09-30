@@ -125,9 +125,12 @@ namespace ACCStatsUploader {
             var newTime = new Time(unwrappedGraphics.Clock);
 
             if (oldTime < newTime) {
-                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
+               await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
                     inGameClock = unwrappedGraphics.Clock,
                     currentWeather = (int)unwrappedGraphics.rainIntensity,
+                    airTemp = unwrappedPhysics.airTemp,
+                    trackTemp = unwrappedPhysics.roadTemp,
+                    windSpeed = unwrappedGraphics.windSpeed,
                     tenMinuteForecast = (int)unwrappedGraphics.rainIntensityIn10min,
                     thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min,
                     trackState = (int)unwrappedGraphics.trackGripStatus

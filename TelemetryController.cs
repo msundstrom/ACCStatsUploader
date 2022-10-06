@@ -7,7 +7,7 @@ namespace ACCStatsUploader {
         private Graphics? latestGraphicsUpdate = null;
         private StaticInfo? latestStaticInfo = null;
 
-        private LapInfo? lapInfo;
+        private LapInfo? lapInfo = null;
 
         private SheetController sheetController;
 
@@ -15,6 +15,8 @@ namespace ACCStatsUploader {
         private PitOutEvent? pitOutEvent = null;
 
         private ClockManager clockManager = new ClockManager();
+
+        private float lastSessionTime = -1;
 
         enum TRACK_STATE {
             ON_TRACK,
@@ -53,12 +55,23 @@ namespace ACCStatsUploader {
             Physics unwrappedPhysics = (Physics)latestPhysicsUpdate;
             StaticInfo unwrappedStaticInfo = (StaticInfo)latestStaticInfo;
 
-            if (lapInfo == null) {
+            if (lastSessionTime == -1) {
+                lastSessionTime = unwrappedGraphics.sessionTimeLeft;
+            }
+
+            if (lapInfo is null && unwrappedGraphics.sessionTimeLeft == lastSessionTime) {
+                lastSessionTime = unwrappedGraphics.sessionTimeLeft;
+                return;
+            }
+
+            if (lapInfo is null) {
+                System.Diagnostics.Debug.WriteLine("Race started!");
                 lapInfo = new LapInfo(
                     unwrappedGraphics,
                     unwrappedPhysics,
                     unwrappedStaticInfo
                 );
+                lapInfo.timingInfo.isFirstLap = true;
             }
 
             TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
@@ -70,7 +83,7 @@ namespace ACCStatsUploader {
                             // put out event
                             lapInfo.isOutLap = true;
                             if (pitOutEvent == null) {
-                                pitOutEvent = new PitOutEvent(unwrappedGraphics);
+                                pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                             }
                             pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
                             await sheetController.insertPitOutEvent(pitOutEvent);
@@ -83,7 +96,7 @@ namespace ACCStatsUploader {
                             lapInfo.isInLap = true;
                         } else {
                             // pit box out event?
-                            pitOutEvent = new PitOutEvent(unwrappedGraphics);
+                            pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                         }
 
                         break;
@@ -126,14 +139,14 @@ namespace ACCStatsUploader {
 
             if (oldTime < newTime) {
                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = unwrappedGraphics.Clock,
-                    currentWeather = (int)unwrappedGraphics.rainIntensity,
+                    inGameClock = new Time(unwrappedGraphics.Clock),
+                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
                     airTemp = unwrappedPhysics.airTemp,
                     trackTemp = unwrappedPhysics.roadTemp,
                     windSpeed = unwrappedGraphics.windSpeed,
-                    tenMinuteForecast = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackState = (int)unwrappedGraphics.trackGripStatus
+                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
+                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
+                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
                 });
 
                 clockManager.update(unwrappedGraphics);
@@ -142,10 +155,14 @@ namespace ACCStatsUploader {
                 (newTime.hours == 00 && newTime.minutes == 00)
             ) {
                 await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = unwrappedGraphics.Clock,
-                    tenMinuteForecast = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecast = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackState = (int)unwrappedGraphics.trackGripStatus
+                    inGameClock = new Time(unwrappedGraphics.Clock),
+                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
+                    airTemp = unwrappedPhysics.airTemp,
+                    trackTemp = unwrappedPhysics.roadTemp,
+                    windSpeed = unwrappedGraphics.windSpeed,
+                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
+                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
+                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
                 });
 
                 clockManager.update(unwrappedGraphics);

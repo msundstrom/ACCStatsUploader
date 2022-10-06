@@ -18,7 +18,6 @@ namespace ACCStatsUploader {
             }
         }
 
-        public List<int> sectorTimes;
         public int lapTime;
         public float currentFuel;
         public int lapNumber;
@@ -43,7 +42,6 @@ namespace ACCStatsUploader {
         private PitstopInfo? ongoingPitstop = null;
 
         public LapInfo(Graphics initialGraphicsData, Physics initialPhysicsData, StaticInfo initialStaticInfo) {
-            this.sectorTimes = new List<int>();
             this.lapTime = 0;
             this.lapNumber = initialGraphicsData.completedLaps + 1;
 

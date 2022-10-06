@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 
 namespace ACCStatsUploader {
-    public class WeatherSheet : Sheet {
+    public class WeatherDataSheet : Sheet {
 
-        public WeatherSheet() {
+        public WeatherDataSheet() {
             sheetTitle = Sheet.SHEET_NAMES.WEATHER;
             columnTitles = new List<object>{
                 "Ingame clock",
+                "Ingame clock (raw value)",
                 "Current weather",
                 "Air temp",
                 "Track temp",

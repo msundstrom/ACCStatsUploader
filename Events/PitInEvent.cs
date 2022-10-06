@@ -1,24 +1,27 @@
-﻿using System;
+﻿using ACCStatsUploader.Converters;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ACCStatsUploader {
     public class PitInEvent {
-        public float pitInSessionTime;
-        public float pitBoxInSessionTime;
+        public string sessionType;
+        public float pitInClockTime;
+        public float pitBoxInClockTime;
         public float inLap;
         public string driverName;
         public int tyreSet;
 
         public PitInEvent(Graphics graphicsInfo, StaticInfo staticInfo) {
-            pitInSessionTime = graphicsInfo.sessionTimeLeft;
+            sessionType = SessionTypeConverter.toString(graphicsInfo.session);
+            pitInClockTime = graphicsInfo.Clock;
             inLap = graphicsInfo.completedLaps + 1;
             driverName = staticInfo.PlayerName + " " + staticInfo.PlayerSurname;
             tyreSet = graphicsInfo.currentTyreSet;
         }
 
         public void setInBox(Graphics graphicsInfo) {
-            pitBoxInSessionTime = graphicsInfo.sessionTimeLeft;
+            pitBoxInClockTime = graphicsInfo.Clock;
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using Google.Apis.Sheets.v4.Data;
+﻿using ACCStatsUploader.GoogleAPI;
+using Google.Apis.Sheets.v4.Data;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,9 +11,13 @@ namespace ACCStatsUploader {
     public class SheetController {
         public PitstopSheet pitstopSheet;
         public LapSheet lapSheet;
-        public WeatherSheet weatherSheet;
+        public WeatherDataSheet weatherSheet;
+        public ForecastSheet forecastSheet;
 
         private SheetsAPIController gsController;
+
+        private BaseRequestFactory baseRequestFactory = new BaseRequestFactory();
+        private CompoundRequestFactory compoundRequestFactory = new CompoundRequestFactory();
 
         public async Task<bool> init(SheetsAPIController gsController) {
             this.gsController = gsController;
@@ -24,7 +30,9 @@ namespace ACCStatsUploader {
                 } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.PITSTOP) {
                     pitstopSheet = new PitstopSheet() { sheetId = (int)sheet.Properties.SheetId };
                 } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.WEATHER) {
-                    weatherSheet = new WeatherSheet() { sheetId = (int)sheet.Properties.SheetId }; 
+                    weatherSheet = new WeatherDataSheet() { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.FORECAST) {
+                    forecastSheet = new ForecastSheet() { sheetId = (int)sheet.Properties.SheetId };
                 }
             }
 
@@ -76,7 +84,7 @@ namespace ACCStatsUploader {
             }
 
             if (weatherSheet == null) {
-                weatherSheet = new WeatherSheet();
+                weatherSheet = new WeatherDataSheet();
                 var weatherSheetId = await gsController.createSheet(weatherSheet);
                 if (weatherSheetId == null) {
                     MessageBox.Show("Creating WeatherSheet failed!");
@@ -100,10 +108,34 @@ namespace ACCStatsUploader {
                 );
             }
 
+            if (forecastSheet == null) {
+                forecastSheet = new ForecastSheet();
+                var sheetId = await createSheet(forecastSheet);
+                if (sheetId == null) {
+                    return false;
+                }
+                forecastSheet.sheetId = (int)sheetId;
+
+                await forecastSheet.setup(gsController);
+            }
+
             return true;
         }
 
+        private async Task<int?> createSheet(Sheet sheet) {
+            var weatherSheetId = await gsController.createSheet(sheet);
+            if (weatherSheetId == null) {
+                MessageBox.Show("Creating " + sheet.sheetTitle + " failed!");
+            }
+
+            return weatherSheetId;
+        }
+
         public async Task insertLapInfo(LapInfo lapInfo) {
+            if (lapInfo.timingInfo.sectorTimes.Count != 3) {
+                MessageBox.Show("Wrong number of sectors!");
+            }
+
             await gsController.appendRow(
                 lapSheet.sheetId,
                 new List<object> {
@@ -170,9 +202,9 @@ namespace ACCStatsUploader {
                     "PitIn",
                     pitInEvent.inLap,
                     "",
-                    pitInEvent.pitInSessionTime,
+                    pitInEvent.pitInClockTime,
                     "",
-                    pitInEvent.pitBoxInSessionTime,
+                    pitInEvent.pitBoxInClockTime,
                     "",
                     pitInEvent.driverName,
                     pitInEvent.tyreSet
@@ -186,24 +218,33 @@ namespace ACCStatsUploader {
             await gsController.appendRow(
                 pitstopSheet.sheetId,
                 new List<object> {
+                    pitOutEvent.sessionType,
                     "PitOut",
                     "",
                     pitOutEvent.outLap,
                     "",
-                    pitOutEvent.pitOutSessionTime,
+                    pitOutEvent.pitOutClockTime,
                     "",
-                    pitOutEvent.pitBoxOutSessionTime,
+                    pitOutEvent.pitBoxOutClockTime,
                     pitOutEvent.driverName,
-                    pitOutEvent.tyreSet
+                    pitOutEvent.tyreSet,
+                    pitOutEvent.initialTyrePressures.fl,
+                    pitOutEvent.initialTyrePressures.fr,
+                    pitOutEvent.initialTyrePressures.rl,
+                    pitOutEvent.initialTyrePressures.rr
                 }
             );
         }
 
         public async Task insertWeatherEvent(WeatherUpdateEvent weatherEvent) {
-            await gsController.insertRow(
+            var sheetRequest = gsController.createSheetRequest();
+            sheetRequest.addRequests(
+                compoundRequestFactory.insertRow(
                 weatherSheet.sheetId,
+                1,
                 new List<object> {
-                    weatherEvent.inGameClock,
+                    weatherEvent.inGameClock.hourMinuteString,
+                    (weatherEvent.inGameClock.hours * 60 * 60) + (weatherEvent.inGameClock.minutes * 60),
                     weatherEvent.currentWeather,
                     weatherEvent.airTemp,
                     weatherEvent.trackTemp,
@@ -211,9 +252,10 @@ namespace ACCStatsUploader {
                     weatherEvent.trackState,
                     weatherEvent.tenMinuteForecast,
                     weatherEvent.thirtyMinuteForecast
-                },
-                1
-            );
+                }
+            ));
+
+            await sheetRequest.execute();
         }
     }
 }

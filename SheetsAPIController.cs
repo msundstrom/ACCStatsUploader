@@ -13,6 +13,7 @@ using Google.Apis.Util.Store;
 using System.Windows;
 using System.DirectoryServices.ActiveDirectory;
 using CommandLine;
+using ACCStatsUploader.GoogleAPI;
 
 namespace ACCStatsUploader {
     public class SheetsAPIController {
@@ -23,6 +24,8 @@ namespace ACCStatsUploader {
         public bool isConnected = false;
 
         private string asf = "replace_me";
+
+        private GoogleAPI.BaseRequestFactory requestFactory = new GoogleAPI.BaseRequestFactory();
 
         public static Stream GenerateStreamFromString(string s) {
             var stream = new MemoryStream();
@@ -79,17 +82,15 @@ namespace ACCStatsUploader {
         }
 
         public async Task<int?> createSheet(Sheet sheetToAdd) {
-            var addSheetRequest = new AddSheetRequest();
-            addSheetRequest.Properties = new SheetProperties();
-            addSheetRequest.Properties.Title = sheetToAdd.sheetTitle;
+            var updateRequest = buildBatchRequest(new List<Request> {
+                requestFactory.addSheet(
+                    sheetToAdd.sheetTitle,
+                    sheetToAdd.hidden
+                ).asRequest()
+            });
 
-            BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
-            batchUpdateSpreadsheetRequest.Requests = new List<Request>();
-            batchUpdateSpreadsheetRequest.Requests.Add(new Request { AddSheet = addSheetRequest });
-
-            var batchUpdateRequest = this.sheetService.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, this.documentId);
             try {
-                var result = await batchUpdateRequest.ExecuteAsync();
+                var result = await updateRequest.ExecuteAsync();
                 var sheetId = result.Replies[0].AddSheet.Properties.SheetId;
 
                 return sheetId;
@@ -110,31 +111,21 @@ namespace ACCStatsUploader {
         }
 
         public async Task setupSheet(int sheetId, int columnsToAdd) {
-            var requests = new List<Request> {
-                new Request {
-                    DeleteDimension = new DeleteDimensionRequest {
-                        Range = new DimensionRange {
-                            StartIndex = 1,
-                            Dimension = "COLUMNS",
-                            SheetId = sheetId,
-                        }
-                    }
-                },
-                new Request {
-                    AppendDimension = new AppendDimensionRequest() {
-                        SheetId = sheetId,
-                        Dimension = "COLUMNS",
-                        Length = columnsToAdd - 1
-                    }
-                }
-            };
-
-            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
-                requests
-            );
+            var updateRequest = buildBatchRequest(new List<Request> {
+                requestFactory.deleteDimension(
+                    sheetId,
+                    Dimension.COLUMNS,
+                    1
+                ).asRequest(),
+                requestFactory.appendDimension(
+                    sheetId,
+                    Dimension.COLUMNS,
+                    columnsToAdd
+                ).asRequest()
+            });
 
             try {
-                await batchUpdateRequest.ExecuteAsync();
+                await updateRequest.ExecuteAsync();
             } catch (System.Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
@@ -148,27 +139,22 @@ namespace ACCStatsUploader {
             bool autoSize = false
         ) {
             var requests = new List<Request> {
-                new Request {
-                    AppendCells = createAppendRowRequest(
-                        sheetId,
-                        rowData,
-                        format
-                    )
-                }
+                requestFactory.addRow(
+                    sheetId,
+                    rowData
+                ).asRequest()
             };
 
             if (autoSize) {
                 requests.Add(
-                    new Request {
-                        AutoResizeDimensions = createAutoResizeDimensionsRequest(
-                            sheetId, 
-                            "COLUMNS"
-                        )
-                    }
+                    requestFactory.autoResizeDimensions(
+                        sheetId,
+                        Dimension.COLUMNS
+                    ).asRequest()
                 );
             }
 
-            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
+            var batchUpdateRequest = buildBatchRequest(
                 requests
             );
 
@@ -180,47 +166,63 @@ namespace ACCStatsUploader {
             }
         }
 
-        public async Task insertRow(
+        public async Task insertRows(
             int sheetId,
             IList<object> rowData,
-            int row
+            int position,
+            int? column = null
         ) {
-            var requests = new List<Request> {
-                new Request {
-                    InsertDimension = createInsertRowRequest(sheetId, row-1)
-                },
-                new Request {
-                    UpdateCells = createUpdateCellsRequest(sheetId, rowData, 0, row)
-                }
-            };
-
-            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
-                requests
-            );
+            var request = buildBatchRequest(new List<Request> {
+                requestFactory.insertDimension(
+                    sheetId,
+                    Dimension.ROWS,
+                    position,
+                    1
+                ).asRequest(),
+                requestFactory.updateCells(
+                    sheetId,
+                    rowData,
+                    column ?? 0,
+                    position
+                ).asRequest()
+            });
 
             try {
-                var response = await batchUpdateRequest.ExecuteAsync();
+                var response = await request.ExecuteAsync();
             } catch (System.Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
         }
 
-        public async Task insertEmptyColumns(int sheetId, int count) {
-            SpreadsheetsResource.BatchUpdateRequest batchUpdateRequest = buildBatchRequest(
-                new List<Request> {
-                    new Request {
-                        AppendDimension = new AppendDimensionRequest() {
-                            SheetId = sheetId,
-                            Dimension = "COLUMNS",
-                            Length = count
-                        }
-                    }
-                }
-            );
+        public async Task addEmptyColumns(int sheetId, int count) {
+            var request = buildBatchRequest(new List<Request> {
+                requestFactory.appendDimension(
+                    sheetId,
+                    Dimension.COLUMNS,
+                    count
+                ).asRequest()
+            });
 
             try {
-                await batchUpdateRequest.ExecuteAsync();
+                await request.ExecuteAsync();
+            } catch (System.Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.GetType());
+            }
+        }
+
+        public async Task addEmptyRows(int sheetId, int count) {
+            var request = buildBatchRequest(new List<Request> {
+                requestFactory.appendDimension(
+                    sheetId,
+                    Dimension.ROWS,
+                    count
+                ).asRequest()
+            });
+
+            try {
+                await request.ExecuteAsync();
             } catch (System.Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
@@ -251,6 +253,30 @@ namespace ACCStatsUploader {
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
         }
+
+        public async Task clearSheet(int sheetId) {
+            var request = buildBatchRequest(new List<Request> {
+                requestFactory.deleteDimension(
+                    sheetId, 
+                    Dimension.ROWS, 
+                    1
+                ).asRequest(),
+                requestFactory.deleteDimension(
+                    sheetId,
+                    Dimension.COLUMNS,
+                    1
+                ).asRequest(),
+            });
+
+            try {
+                await request.ExecuteAsync();
+            } catch (System.Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.GetType());
+            }
+        }
+
+        
 
         private AppendCellsRequest createAppendRowRequest(int sheetId, IList<object> rowData, TextFormat? format = null) {
             AppendCellsRequest appendCellsRequest = new AppendCellsRequest();
@@ -295,6 +321,22 @@ namespace ACCStatsUploader {
                 Coordinate = new GridCoordinate() {
                     SheetId = sheetId,
                     RowIndex = 1
+                }
+            };
+        }
+
+        private DeleteDimensionRequest deleteDimensionRequest(
+            int sheetId,
+            string dimension,
+            int startIndex,
+            int endIndex
+        ) {
+            return new DeleteDimensionRequest() {
+                Range = new DimensionRange {
+                    SheetId = sheetId,
+                    Dimension = dimension,
+                    StartIndex = startIndex,
+                    EndIndex = endIndex
                 }
             };
         }
@@ -354,6 +396,18 @@ namespace ACCStatsUploader {
             var batchUpdateRequest = this.sheetService.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, this.documentId);
 
             return batchUpdateRequest;
+        }
+
+
+
+
+
+
+
+
+
+        public SheetRequest createSheetRequest() {
+            return new SheetRequest(sheetService, documentId);
         }
     }
 }

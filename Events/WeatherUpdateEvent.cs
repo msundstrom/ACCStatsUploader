@@ -1,12 +1,42 @@
-﻿namespace ACCStatsUploader {
+﻿using ACCStatsUploader.Converters;
+
+namespace ACCStatsUploader {
     public class WeatherUpdateEvent {
-        public float inGameClock;
-        public int currentWeather;
+        public Time inGameClock;
+        public int currentWeatherValue;
         public float airTemp;
         public float trackTemp;
         public float windSpeed;
-        public int tenMinuteForecast;
-        public int thirtyMinuteForecast;
-        public int trackState;
+        public int tenMinuteForecastValue;
+        public int thirtyMinuteForecastValue;
+        public int trackStateValue;
+
+        public string currentWeather {
+            get {
+                return weatherStringFromValue(currentWeatherValue);
+            }
+        }
+
+        public string tenMinuteForecast {
+            get {
+                return weatherStringFromValue(tenMinuteForecastValue);
+            }
+        }
+
+        public string thirtyMinuteForecast {
+            get {
+                return weatherStringFromValue(thirtyMinuteForecastValue);
+            }
+        }
+
+        public string trackState {
+            get {
+                return TrackStateConverter.toString(trackStateValue);
+            }
+        }
+
+        private string weatherStringFromValue(int value) {
+            return WeatherConverter.toString(value);
+        }
     }
 }

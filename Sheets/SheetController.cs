@@ -199,6 +199,7 @@ namespace ACCStatsUploader {
             await gsController.appendRow(
                 pitstopSheet.sheetId,
                 new List<object> {
+                    pitInEvent.sessionType,
                     "PitIn",
                     pitInEvent.inLap,
                     "",
@@ -207,6 +208,7 @@ namespace ACCStatsUploader {
                     pitInEvent.pitBoxInClockTime,
                     "",
                     pitInEvent.driverName,
+                    pitInEvent.driveTimeLeft,
                     pitInEvent.tyreSet
                 },
                 null,
@@ -227,6 +229,7 @@ namespace ACCStatsUploader {
                     "",
                     pitOutEvent.pitBoxOutClockTime,
                     pitOutEvent.driverName,
+                    "",
                     pitOutEvent.tyreSet,
                     pitOutEvent.initialTyrePressures.fl,
                     pitOutEvent.initialTyrePressures.fr,

@@ -11,6 +11,7 @@ namespace ACCStatsUploader {
         public float inLap;
         public string driverName;
         public int tyreSet;
+        public int driveTimeLeft;
 
         public PitInEvent(Graphics graphicsInfo, StaticInfo staticInfo) {
             sessionType = SessionTypeConverter.toString(graphicsInfo.session);
@@ -18,6 +19,7 @@ namespace ACCStatsUploader {
             inLap = graphicsInfo.completedLaps + 1;
             driverName = staticInfo.PlayerName + " " + staticInfo.PlayerSurname;
             tyreSet = graphicsInfo.currentTyreSet;
+            driveTimeLeft = graphicsInfo.driverStintTotalTimeLeft;
         }
 
         public void setInBox(Graphics graphicsInfo) {

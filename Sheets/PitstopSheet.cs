@@ -26,6 +26,7 @@ namespace ACCStatsUploader {
                 "Pitbox in session time left",
                 "Pitbox out session time left",
                 "Driver",
+                "Drive time left",
                 "Tyre set",
                 "Initial PSI FL",
                 "Initial PSI FR",

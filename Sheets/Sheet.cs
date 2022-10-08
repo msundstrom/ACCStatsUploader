@@ -9,6 +9,8 @@ namespace ACCStatsUploader {
             public static String PITSTOP = "pit_stop_data";
             public static String WEATHER = "weather_data";
             public static String FORECAST = "weather_forecast";
+            public static String STINT_MATRIX = "stint_matrix";
+            public static String STINT_OVERVIEW = "Stint overview";
         }
 
         public string sheetTitle;

@@ -13,6 +13,8 @@ namespace ACCStatsUploader {
         public LapSheet lapSheet;
         public WeatherDataSheet weatherSheet;
         public ForecastSheet forecastSheet;
+        public StintOverviewSheet stintOverviewSheet;
+        public StintMatrixSheet stintMatrixSheet;
 
         private SheetsAPIController gsController;
 
@@ -33,6 +35,10 @@ namespace ACCStatsUploader {
                     weatherSheet = new WeatherDataSheet() { sheetId = (int)sheet.Properties.SheetId };
                 } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.FORECAST) {
                     forecastSheet = new ForecastSheet() { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.STINT_OVERVIEW) {
+                    stintOverviewSheet = new StintOverviewSheet() { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.STINT_MATRIX) {
+                    stintMatrixSheet = new StintMatrixSheet() { sheetId = (int)sheet.Properties.SheetId };
                 }
             }
 
@@ -117,6 +123,26 @@ namespace ACCStatsUploader {
                 forecastSheet.sheetId = (int)sheetId;
 
                 await forecastSheet.setup(gsController);
+            }
+
+            if (stintMatrixSheet == null) {
+                stintMatrixSheet = new StintMatrixSheet();
+                var sheetId = await createSheet(stintMatrixSheet);
+                if (sheetId == null) {
+                    return false;
+                }
+                stintMatrixSheet.sheetId = (int)sheetId;
+                await stintMatrixSheet.setup(gsController);
+            }
+
+            if (stintOverviewSheet == null) {
+                stintOverviewSheet = new StintOverviewSheet();
+                var sheetId = await createSheet(stintOverviewSheet);
+                if (sheetId == null) {
+                    return false;
+                }
+                stintOverviewSheet.sheetId = (int)sheetId;
+                await stintOverviewSheet.setup(gsController);
             }
 
             return true;

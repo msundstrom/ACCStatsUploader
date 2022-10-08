@@ -66,5 +66,17 @@ namespace ACCStatsUploader.GoogleAPI {
                 UpdateDimensionProperties = request
             };
         }
+
+        public static Request asRequest(this UpdateSheetPropertiesRequest request) {
+            return new Request {
+                UpdateSheetProperties = request
+            };
+        }
+
+        public static Request asRequest(this UpdateBordersRequest request) {
+            return new Request {
+                UpdateBorders = request
+            };
+        }
     }
 }

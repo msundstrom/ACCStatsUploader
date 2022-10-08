@@ -20,6 +20,18 @@ namespace ACCStatsUploader.GoogleAPI {
         ALL
     }
 
+    public enum CellVerticalAlignment {
+        TOP,
+        MIDDLE,
+        BOTTOM
+    }
+
+    public enum CellHorizontalAlignment {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+
     public class BaseRequestFactory {
 
         // Add requests
@@ -76,6 +88,27 @@ namespace ACCStatsUploader.GoogleAPI {
         }
 
         // Update requests
+        public UpdateCellsRequest updateCell(
+            int sheetId,
+            object cellData,
+            int column,
+            int row,
+            TextFormat? textFormat = null,
+            CellFormat? cellFormat = null
+        ) {
+            return new UpdateCellsRequest() {
+                Rows = new[] { createRowData(new List<object>{ cellData }, textFormat, cellFormat) },
+                Range = new GridRange() {
+                    SheetId = sheetId,
+                    StartColumnIndex = column,
+                    EndColumnIndex = column + 1,
+                    StartRowIndex = row,
+                    EndRowIndex = row + 1,
+                },
+                Fields = "*"
+            };
+        }
+
         public UpdateCellsRequest updateCells(
             int sheetId,
             IList<object> rowData,
@@ -103,7 +136,8 @@ namespace ACCStatsUploader.GoogleAPI {
             int columnIndex,
             int startRow,
             TextFormat? textFormat = null,
-            CellFormat? cellFormat = null
+            CellFormat? cellFormat = null,
+            string? fields = null
         ) {
             var colData = column.Select(val => new List<object> { val });
 
@@ -116,7 +150,7 @@ namespace ACCStatsUploader.GoogleAPI {
                     EndColumnIndex= columnIndex + 1,
                     EndRowIndex= startRow + colData.Count(),
                 },
-                Fields = "*",
+                Fields = fields ?? "*",
             };
         }
 
@@ -191,9 +225,59 @@ namespace ACCStatsUploader.GoogleAPI {
                     SheetId = sheetId,
                     Dimension = convertDimension(dimension),
                     StartIndex = start,
-                    EndIndex = start
+                    EndIndex = end
                 },
                 Fields = "*"
+            };
+        }
+
+        public UpdateSheetPropertiesRequest freezeRows(
+            int sheetId,
+            int rowCount
+        ) {
+            return new UpdateSheetPropertiesRequest {
+                Properties = new SheetProperties {
+                    SheetId = sheetId,
+                    GridProperties = new GridProperties {
+                        FrozenRowCount = rowCount,
+                    }
+                },
+                Fields = "gridProperties.frozenRowCount"
+            };
+        }
+
+        public UpdateSheetPropertiesRequest freezeColumns(
+            int sheetId,
+            int colCount
+        ) {
+            return new UpdateSheetPropertiesRequest {
+                Properties = new SheetProperties {
+                    SheetId = sheetId,
+                    GridProperties = new GridProperties {
+                        FrozenColumnCount = colCount,
+                    }
+                },
+                Fields= "gridProperties.frozenColumnCount"
+            };
+        }
+
+        public UpdateBordersRequest setRightBorder(
+              int sheetId,
+              Border border,
+              int? startRow,
+              int? endRow,
+              int? startCol,
+              int? endCol
+        ) {
+            return new UpdateBordersRequest {
+                Range = new GridRange {
+                    SheetId = sheetId,
+                    StartRowIndex = startRow,
+                    EndRowIndex = endRow,
+                    StartColumnIndex = startCol,
+                    EndColumnIndex = endCol
+                },
+                Right = border,
             };
         }
 

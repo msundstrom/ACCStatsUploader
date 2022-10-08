@@ -166,35 +166,6 @@ namespace ACCStatsUploader {
             }
         }
 
-        public async Task insertRows(
-            int sheetId,
-            IList<object> rowData,
-            int position,
-            int? column = null
-        ) {
-            var request = buildBatchRequest(new List<Request> {
-                requestFactory.insertDimension(
-                    sheetId,
-                    Dimension.ROWS,
-                    position,
-                    1
-                ).asRequest(),
-                requestFactory.updateCells(
-                    sheetId,
-                    rowData,
-                    column ?? 0,
-                    position
-                ).asRequest()
-            });
-
-            try {
-                var response = await request.ExecuteAsync();
-            } catch (System.Exception e) {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-                System.Diagnostics.Debug.WriteLine(e.GetType());
-            }
-        }
-
         public async Task addEmptyColumns(int sheetId, int count) {
             var request = buildBatchRequest(new List<Request> {
                 requestFactory.appendDimension(

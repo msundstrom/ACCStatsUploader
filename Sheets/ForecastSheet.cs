@@ -7,322 +7,247 @@ using System.Threading.Tasks;
 using Google.Apis.Sheets.v4.Data;
 using System.Drawing;
 using Color = Google.Apis.Sheets.v4.Data.Color;
+using ACCStatsUploader.Converters;
 
 namespace ACCStatsUploader {
+    using IRequestList = IList<Request>;
+    using RequestList = List<Request>;
+    using ICells = IList<Cell>;
+    using Cells = List<Cell>;
+    using ColorConverter = Converters.ColorConverter;
+
     public class ForecastSheet : Sheet {
 
-        private CellFormat centeredTextFormat = new CellFormat() {
-            HorizontalAlignment = "CENTER",
-            VerticalAlignment = "MIDDLE"
-        };
-
-        public ForecastSheet() {
-            sheetTitle = Sheet.SHEET_NAMES.FORECAST;
+        public string sheetTitle {
+            get {
+                return SHEET_NAMES.FORECAST;
+            }
+        }
+        public int sheetId { get; set; }
+        public bool hidden {
+            get {
+                return false;
+            }
         }
 
-        public async Task setup(SheetsAPIController gsController) {
-            var baseFactory = new BaseRequestFactory();
-            var compoundFactory = new CompoundRequestFactory();
+        private SheetsAPIController gsController { get; set; }
 
-            var request = gsController.createSheetRequest();
-
-            // Clear sheet and set correct cols
-            request.addRequests(compoundFactory.clearSheet(sheetId));
-            request.addRequest(baseFactory.appendDimension(
-                sheetId,
-                Dimension.COLUMNS,
-                4
-            ).asRequest());
-            request.addRequest(baseFactory.appendDimension(
-                sheetId,
-                Dimension.ROWS,
-                34
-            ).asRequest());
-
-
-            request.addRequests(createMergeRequests(baseFactory));
-            request.addRequests(createFormulaRequests(baseFactory));
-            request.addRequests(createTimeLabelRequests(baseFactory));
-            request.addRequests(createStaticTextRequests(baseFactory));
-            request.addRequests(generateResizeRequests(baseFactory));
-
-            await request.execute();
+        public ForecastSheet(SheetsAPIController gsController) {
+            this.gsController = gsController;   
         }
 
-        private IList<Request> createStaticTextRequests(BaseRequestFactory baseFactory) {
-            var titleBackgroundColor = generateRgba("#9bc2e6");
-            var subTitleBackgroundColor = generateRgba("#bfbfbf");
-
-            return new List<Request>() {
-                baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        "Weather forecast"
-                    },
-                    0,
-                    1,
-                    new TextFormat {
-                        FontSize = 12,
-                        Bold = true,
-                    },
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE",
-                        BackgroundColor = new Color {
-                            Red = titleBackgroundColor[0],
-                            Green = titleBackgroundColor[1],
-                            Blue = titleBackgroundColor[2]
-                        }
-                    }
-                ).asRequest(),
-                baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        "In game clock"
-                    },
-                    0,
-                    2,
-                    new TextFormat {
-                        Bold = true,
-                    },
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE",
-                        BackgroundColor = new Color {
-                            Red = subTitleBackgroundColor[0],
-                            Green = subTitleBackgroundColor[1],
-                            Blue = subTitleBackgroundColor[2]
-                        }
-                    }
-                ).asRequest(),
-                 baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        "Based on 10"
-                    },
-                    2,
-                    2,
-                    new TextFormat {
-                        Bold = true,
-                    },
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE",
-                        BackgroundColor = new Color {
-                            Red = subTitleBackgroundColor[0],
-                            Green = subTitleBackgroundColor[1],
-                            Blue = subTitleBackgroundColor[2]
-                        }
-                    }
-                ).asRequest(),
-                  baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        "Based on 30"
-                    },
-                    3,
-                    2,
-                    new TextFormat {
-                        Bold = true,
-                    },
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE",
-                        BackgroundColor = new Color {
-                            Red = subTitleBackgroundColor[0],
-                            Green = subTitleBackgroundColor[1],
-                            Blue = subTitleBackgroundColor[2]
-                        }
-                    }
-                ).asRequest()
-            };
+        public async Task create() {
+            await this.createSheet(gsController);
+            await setup();
         }
 
-        private IList<Request> createTimeLabelRequests(BaseRequestFactory baseFactory) {
-            // add time preview colum values
-            var timePreviewLabelColumnValues = new List<object>();
-            var timePreviewColumnValues = new List<object>();
+        private async Task setup() {
+            var setupRequest = gsController.createSheetRequest();
+
+            setupRequest.addRequests(this.clearSheet());
+            setupRequest.addRequest(this.addEmptyColumns(3));
+            setupRequest.addRequest(this.addEmptyRows(32));
+
+            // main title merge
+            setupRequest.addRequest(this.mergeRange(new CellRange {
+                startCol = 0,
+                startRow = 0,
+                endCol = 4,
+                endRow = 1,
+            }, MergeType.HORIZONTAL));
+
+            // Ingame clock merge
+            setupRequest.addRequest(this.mergeRange(new CellRange {
+                startCol = 0,
+                startRow = 1,
+                endCol = 2,
+                endRow = 2,
+            }, MergeType.HORIZONTAL));
+
+            // Current weather merge
+            setupRequest.addRequest(this.mergeRange(new CellRange {
+                startCol = 2,
+                startRow = 2,
+                endCol = 4,
+                endRow = 3,
+            }, MergeType.HORIZONTAL));
+
+            // 30 min weather slots merge
+            setupRequest.addRequest(this.mergeRange(new CellRange {
+                startCol = 2,
+                startRow = 13,
+                endCol = 4,
+                endRow = 33,
+            }, MergeType.HORIZONTAL));
+
+
+            // add first 10 min values based on 10
+            var firstTenMinValuesBasedOnTen = new Cells();
+            for (int i = 11; i >= 2; i--) {
+                firstTenMinValuesBasedOnTen.Add(
+                    new Cell {
+                        value = new Formula {
+                            value = "=IFERROR(INDIRECT(\"weather_data!$H$" + i + "\");\"\")"
+                        },
+                        format = new CellFormat {
+                            HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER)
+                        }
+                    }
+                );
+            }
+            setupRequest.addRequest(this.updateColumn(new CellRange {
+                startRow = 3,
+                startCol = 2,
+            }, firstTenMinValuesBasedOnTen));
+
+            // add first 10 min values based on 30
+            var firstTenMinValuesBasedOnThirty = new Cells();
+            for (int i = 31; i >= 22; i--) {
+                firstTenMinValuesBasedOnThirty.Add(
+                    new Cell {
+                        value = new Formula {
+                            value = "=IFERROR(INDIRECT(\"weather_data!$I$" + i + "\");\"\")"
+                        },
+                        format = new CellFormat {
+                            HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER)
+                        }
+                    }
+                );
+            }
+            setupRequest.addRequest(this.updateColumn(new CellRange {
+                startRow = 3,
+                startCol = 3,
+            }, firstTenMinValuesBasedOnThirty));
+
+            // add last 20 min values based on 30
+            var lastTwentyMinValuesBasedOnThirty = new Cells();
+            for (int i = 21; i >= 2; i--) {
+                lastTwentyMinValuesBasedOnThirty.Add(
+                    new Cell {
+                        value = new Formula {
+                            value = "=IFERROR(INDIRECT(\"weather_data!$I$" + i + "\");\"\")"
+                        },
+                        format = new CellFormat {
+                            HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER)
+                        }
+                    }
+                );
+            }
+            setupRequest.addRequest(this.updateColumn(new CellRange {
+                startRow = 13,
+                startCol = 2,
+            }, lastTwentyMinValuesBasedOnThirty));
+
+            // Setup the time labels
+            var timePreviewLabelColumnValues = new Cells();
+            var timePreviewColumnValues = new Cells();
             for (int i = 0; i <= 30; i++) {
                 if (i == 0) {
-                    timePreviewLabelColumnValues.Insert(0, "now");
-                    timePreviewColumnValues.Add(new Formula {
-                        value = "=IFERROR(TIME(0;0;INDIRECT(\"weather_data!$B$2\"));\"\")"
+                    timePreviewLabelColumnValues.Insert(0, new Cell { value = "now", format = CellFormats.centered });
+                    timePreviewColumnValues.Add(new Cell { 
+                        value = new Formula { value = "=IFERROR(TIME(0;0;INDIRECT(\"weather_data!$B$2\"));\"\")" },
+                        format = CellFormats.centeredWithNumberFormat(NumberFormats.clock)
                     });
                 } else {
-                    timePreviewLabelColumnValues.Add("in " + i + " min");
-                    timePreviewColumnValues.Add(new Formula {
-                        value = "=IFERROR(TIME(0;0;INDIRECT(\"weather_data!$B$2\") + " + i * 60 +");\"\")"
+                    timePreviewLabelColumnValues.Add(new Cell { value = "in " + i + " min", format = CellFormats.centered });
+                    timePreviewColumnValues.Add(new Cell { 
+                        value = new Formula { value = "=IFERROR(TIME(0;0;INDIRECT(\"weather_data!$B$2\") + " + i * 60 + ");\"\")"},
+                        format = CellFormats.centeredWithNumberFormat(NumberFormats.clock)
                     });
                 }
             }
+            setupRequest.addRequest(this.updateColumn(new CellRange {
+                startRow = 2,
+                startCol = 0,
+            }, timePreviewLabelColumnValues));
+            setupRequest.addRequest(this.updateColumn(new CellRange {
+                startRow = 2,
+                startCol = 1,
+            }, timePreviewColumnValues));
 
-            return new List<Request> {
-                baseFactory.updateColumn(
-                    sheetId,
-                    timePreviewLabelColumnValues,
-                    0,
-                    3,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE"
-                    }
-                ).asRequest(),
-                baseFactory.updateColumn(
-                    sheetId,
-                    timePreviewColumnValues,
-                    1,
-                    3,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE",
-                        NumberFormat = new NumberFormat {
-                            Type = "DATE_TIME",
-                            Pattern = "hh:mm"
-                        }
-                    }
-                ).asRequest()
-            };
-        }
+            // setup current weather
+            setupRequest.addRequest(this.updateCell(
+                new CellRange { startRow = 2, startCol = 2 },
+                new Cell { value = new Formula { value = "=IFERROR(INDIRECT(\"weather_data!$C$2\");\"\")" }, format = CellFormats.centered }
+            ));
 
-        private IList<Request> createFormulaRequests(BaseRequestFactory baseFactory) {
-            // add first 10 min values based on 10
-            var firstTenMinValuesBasedOnTen = new List<object>();
-            for (int i = 11; i >= 2; i--) {
-                firstTenMinValuesBasedOnTen.Add(
-                    new Formula {
-                        value = "=IFERROR(INDIRECT(\"weather_data!$H$" + i + "\");\"\")"
-                    }
-                );
-            }
-
-            // add first 10 min values based on 30
-            var firstTenMinValuesBasedOnThirty = new List<object>();
-            for (int i = 31; i >= 22; i--) {
-                firstTenMinValuesBasedOnThirty.Add(
-                    new Formula {
-                        value = "=IFERROR(INDIRECT(\"weather_data!$I$" + i + "\");\"\")"
-                    }
-                );
-            }
-
-            // add last 20 min values based on 30
-            var lastTwentyMinValuesBasedOnThirty = new List<object>();
-            for (int i = 21; i >= 2; i--) {
-                lastTwentyMinValuesBasedOnThirty.Add(
-                    new Formula {
-                        value = "=IFERROR(INDIRECT(\"weather_data!$I$" + i + "\");\"\")" 
-                    }
-                );
-            }
-
-            return new List<Request> {
-                baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        new Formula {
-                            value = "=IFERROR(INDIRECT(\"weather_data!$C$2\");\"\")"
-                        }
+            // Setup static texts
+            setupRequest.addRequest(this.updateCell(new CellRange {
+                startRow = 0,
+                startCol = 0
+            }, new Cell {
+                value = "Weather forecast",
+                format = new CellFormat {
+                    TextFormat = new TextFormat {
+                        FontSize = 12,
+                        Bold = true,
                     },
-                    2,
-                    3,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE"
-                    }
-                ).asRequest(),
-                baseFactory.updateColumn(
-                    sheetId,
-                    firstTenMinValuesBasedOnTen,
-                    2,
-                    4,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE"
-                    }
-                ).asRequest(),
-                baseFactory.updateColumn(
-                    sheetId,
-                    firstTenMinValuesBasedOnThirty,
-                    3,
-                    4,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE"
-                    }
-                ).asRequest(),
-                baseFactory.updateColumn(
-                    sheetId,
-                    lastTwentyMinValuesBasedOnThirty,
-                    2,
-                    14,
-                    null,
-                    new CellFormat {
-                        HorizontalAlignment = "CENTER",
-                        VerticalAlignment = "MIDDLE"
-                    }
-                ).asRequest()
-            };
-        }
+                    HorizontalAlignment = "CENTER",
+                    VerticalAlignment = "MIDDLE",
+                    BackgroundColor = ColorConverter.fromHex("#9bc2e6")
+                }
+            }));
 
-        private IList<Request> createMergeRequests(BaseRequestFactory baseFactory) {
-            return new List<Request> {
-                baseFactory.mergeRange( // Main title
-                    sheetId,
-                    MergeType.HORIZONTAL,
-                    0,
-                    1,
-                    4,
-                    2
-                ).asRequest(),
-                baseFactory.mergeRange( // Current weather
-                    sheetId,
-                    MergeType.HORIZONTAL,
-                    0,
-                    2,
-                    2,
-                    3
-                ).asRequest(),
-                baseFactory.mergeRange( // 30 min weather
-                    sheetId,
-                    MergeType.HORIZONTAL,
-                    2,
-                    3,
-                    4,
-                    4
-                ).asRequest(),
-                baseFactory.mergeRange( // 30 min weather
-                    sheetId,
-                    MergeType.HORIZONTAL,
-                    2,
-                    14,
-                    4,
-                    34
-                ).asRequest()
-            };
-        }
+            setupRequest.addRequest(this.updateCell(new CellRange {
+                startRow = 1,
+                startCol = 0
+            }, new Cell {
+                value = "In game clock",
+                format = new CellFormat {
+                    TextFormat = new TextFormat {
+                        FontSize = 10,
+                        Bold = true,
+                    },
+                    HorizontalAlignment = "CENTER",
+                    VerticalAlignment = "MIDDLE",
+                    BackgroundColor = ColorConverter.fromHex("#bfbfbf")
+                }
+            }));
 
-        private IList<Request> generateResizeRequests(BaseRequestFactory baseFactory) {
-            return new List<Request> {
-                baseFactory.setDimensionSize(
-                    sheetId,
-                    100,
-                    Dimension.COLUMNS,
-                    0,
-                    4
-                ).asRequest(),
-                baseFactory.setDimensionSize(
-                    sheetId,
-                    40,
-                    Dimension.ROWS,
-                    0,
-                    3
-                ).asRequest()
-            };
+            setupRequest.addRequest(this.updateCell(new CellRange {
+                startRow = 1,
+                startCol = 2
+            }, new Cell {
+                value = "Based on 10",
+                format = new CellFormat {
+                    TextFormat = new TextFormat {
+                        FontSize = 10,
+                        Bold = true,
+                    },
+                    HorizontalAlignment = "CENTER",
+                    VerticalAlignment = "MIDDLE",
+                    BackgroundColor = ColorConverter.fromHex("#bfbfbf")
+                }
+            }));
+
+            setupRequest.addRequest(this.updateCell(new CellRange {
+                startRow = 1,
+                startCol = 3
+            }, new Cell {
+                value = "Based on 30",
+                format = new CellFormat {
+                    TextFormat = new TextFormat {
+                        FontSize = 10,
+                        Bold = true,
+                    },
+                    HorizontalAlignment = "CENTER",
+                    VerticalAlignment = "MIDDLE",
+                    BackgroundColor = ColorConverter.fromHex("#bfbfbf")
+                }
+            }));
+
+            // Resize some rows and cols
+            setupRequest.addRequest(this.resize(Dimension.ROWS, new CellRange {
+                startRow = 0,
+                endRow = 1
+            }, 40));
+
+            setupRequest.addRequest(this.resize(Dimension.COLUMNS, new CellRange {
+                startCol = 0
+            }, 100));
+
+
+            await setupRequest.execute();
         }
 
         private IList<float> generateRgba(string backgroundColor) {

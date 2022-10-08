@@ -15,6 +15,7 @@ namespace ACCStatsUploader {
         public ForecastSheet forecastSheet;
         public StintOverviewSheet stintOverviewSheet;
         public StintMatrixSheet stintMatrixSheet;
+        public DriverOverviewSheet driverOverviewSheet;
 
         private SheetsAPIController gsController;
 
@@ -27,122 +28,56 @@ namespace ACCStatsUploader {
             var existingSheets = await gsController.getSheets();
 
             foreach (Google.Apis.Sheets.v4.Data.Sheet sheet in existingSheets) {
-                if (sheet.Properties.Title == Sheet.SHEET_NAMES.LAP) {
-                    lapSheet = new LapSheet() { sheetId = (int)sheet.Properties.SheetId };
-                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.PITSTOP) {
-                    pitstopSheet = new PitstopSheet() { sheetId = (int)sheet.Properties.SheetId };
-                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.WEATHER) {
-                    weatherSheet = new WeatherDataSheet() { sheetId = (int)sheet.Properties.SheetId };
-                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.FORECAST) {
-                    forecastSheet = new ForecastSheet() { sheetId = (int)sheet.Properties.SheetId };
-                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.STINT_OVERVIEW) {
-                    stintOverviewSheet = new StintOverviewSheet() { sheetId = (int)sheet.Properties.SheetId };
-                } else if (sheet.Properties.Title == Sheet.SHEET_NAMES.STINT_MATRIX) {
-                    stintMatrixSheet = new StintMatrixSheet() { sheetId = (int)sheet.Properties.SheetId };
+                if (sheet.Properties.Title == SHEET_NAMES.LAP) {
+                    lapSheet = new LapSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == SHEET_NAMES.PITSTOP) {
+                    pitstopSheet = new PitstopSheet(gsController) { sheetId = (int)sheet.Properties.SheetId};
+                } else if (sheet.Properties.Title == SHEET_NAMES.WEATHER) {
+                    weatherSheet = new WeatherDataSheet(gsController) { sheetId = (int)sheet.Properties.SheetId};
+                } else if (sheet.Properties.Title == SHEET_NAMES.FORECAST) {
+                    forecastSheet = new ForecastSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == SHEET_NAMES.STINT_OVERVIEW) {
+                    stintOverviewSheet = new StintOverviewSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == SHEET_NAMES.STINT_MATRIX) {
+                    stintMatrixSheet = new StintMatrixSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == SHEET_NAMES.DRIVER_OVERVIEW) {
+                    driverOverviewSheet = new DriverOverviewSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
                 }
             }
 
             if (lapSheet == null) {
-                lapSheet = new LapSheet();
-                var lapSheetId = await gsController.createSheet(lapSheet);
-                if (lapSheetId == null) {
-                    MessageBox.Show("Creating LapSheet failed!");
-                    return false;
-                }
-                lapSheet.sheetId = (int)lapSheetId!;
-
-                // clear sheet + insert new cols
-                await gsController.setupSheet(lapSheet.sheetId, lapSheet.columnTitles.Count);
-
-
-                await gsController.appendRow(
-                    lapSheet.sheetId,
-                    lapSheet.columnTitles,
-                    new TextFormat() {
-                        Bold = true,
-                        FontSize = 16
-                    },
-                    true
-                );
+                lapSheet = new LapSheet(gsController);
+                await lapSheet.create();
             }
 
             if (pitstopSheet == null) {
-                pitstopSheet = new PitstopSheet();
-                var pitstopSheetId = await gsController.createSheet(pitstopSheet);
-                if (pitstopSheetId == null) {
-                    MessageBox.Show("Creating PitstopSheet failed!");
-                    return false;
-                }
-                pitstopSheet.sheetId = (int)pitstopSheetId;
-
-                // clear sheet + insert new cols
-                await gsController.setupSheet(pitstopSheet.sheetId, pitstopSheet.columnTitles.Count);
-
-                await gsController.appendRow(
-                    pitstopSheet.sheetId,
-                    pitstopSheet.columnTitles,
-                    new TextFormat() {
-                        Bold = true,
-                        FontSize = 16
-                    },
-                    true
-                );
+                pitstopSheet = new PitstopSheet(gsController);
+                await pitstopSheet.create();
             }
 
             if (weatherSheet == null) {
-                weatherSheet = new WeatherDataSheet();
-                var weatherSheetId = await gsController.createSheet(weatherSheet);
-                if (weatherSheetId == null) {
-                    MessageBox.Show("Creating WeatherSheet failed!");
-                    return false;
-                }
-                weatherSheet.sheetId = (int)weatherSheetId;
-
-                // clear sheet + insert new cols
-                await gsController.setupSheet(weatherSheet.sheetId, weatherSheet.columnTitles.Count);
-
-                await gsController.removeRows(weatherSheet.sheetId);
-
-                await gsController.appendRow(
-                    weatherSheet.sheetId,
-                    weatherSheet.columnTitles,
-                    new TextFormat() {
-                        Bold = true,
-                        FontSize = 16
-                    },
-                    true
-                );
+                weatherSheet = new WeatherDataSheet(gsController);
+                await weatherSheet.create();
             }
 
             if (forecastSheet == null) {
-                forecastSheet = new ForecastSheet();
-                var sheetId = await createSheet(forecastSheet);
-                if (sheetId == null) {
-                    return false;
-                }
-                forecastSheet.sheetId = (int)sheetId;
-
-                await forecastSheet.setup(gsController);
+                forecastSheet = new ForecastSheet(gsController);
+                await forecastSheet.create();
             }
 
             if (stintMatrixSheet == null) {
-                stintMatrixSheet = new StintMatrixSheet();
-                var sheetId = await createSheet(stintMatrixSheet);
-                if (sheetId == null) {
-                    return false;
-                }
-                stintMatrixSheet.sheetId = (int)sheetId;
-                await stintMatrixSheet.setup(gsController);
+                stintMatrixSheet = new StintMatrixSheet(gsController);
+                await stintMatrixSheet.create();
             }
 
             if (stintOverviewSheet == null) {
-                stintOverviewSheet = new StintOverviewSheet();
-                var sheetId = await createSheet(stintOverviewSheet);
-                if (sheetId == null) {
-                    return false;
-                }
-                stintOverviewSheet.sheetId = (int)sheetId;
-                await stintOverviewSheet.setup(gsController);
+                stintOverviewSheet = new StintOverviewSheet(gsController);
+                await stintOverviewSheet.create();
+            }
+
+            if (driverOverviewSheet == null) {
+                driverOverviewSheet = new DriverOverviewSheet(gsController);
+                await driverOverviewSheet.create();
             }
 
             return true;

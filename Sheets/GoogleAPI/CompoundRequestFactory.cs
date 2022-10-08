@@ -38,7 +38,7 @@ namespace ACCStatsUploader.GoogleAPI {
                     Dimension.ROWS,
                     row,
                     1
-                ).asRequest(),
+                ),
                 requestFactory.updateCells(
                     sheetId,
                     rowData,

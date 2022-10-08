@@ -7,39 +7,55 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ACCStatsUploader {
+    using ICells = IList<Cell>;
+    using Cells = List<Cell>;
+
+
     public class StintMatrixSheet : Sheet {
-        public StintMatrixSheet() {
-            sheetTitle = Sheet.SHEET_NAMES.STINT_MATRIX;
-            columnTitles = new List<object>();
-            //hidden = true;
+        public string sheetTitle {
+            get {
+                return SHEET_NAMES.STINT_MATRIX;
+            }
+        }
+        public int sheetId { get; set; }
+        public bool hidden {
+            get {
+                return true;
+            }
         }
 
-        public async Task setup(SheetsAPIController gsController) {
-            var baseFactory = new BaseRequestFactory();
-            var compoundFactory = new CompoundRequestFactory();
+        private IList<object> columnTitles {
+            get {
+                return new List<object> {
+                    "",
+                    "Start lap",
+                    "End lap",
+                    "Start time",
+                    "End time"
+                };
+            }
+        }
 
-            var request = gsController.createSheetRequest();
+        private SheetsAPIController gsController { get; set; }
 
-            request.addRequests(compoundFactory.clearSheet(sheetId));
-            request.addRequest(baseFactory.appendDimension(
-                sheetId,
-                Dimension.COLUMNS,
-                5
-            ).asRequest());
+        public StintMatrixSheet(SheetsAPIController gsController) {
+            this.gsController = gsController;
+        }
 
-            request.addRequest(
-                baseFactory.updateCells(
-                    sheetId,
-                    new List<object> {
-                        "",
-                        "Start lap",
-                        "End lap",
-                        "Start time",
-                        "End time"
-                    },
-                    0,
-                    0
-                ).asRequest()
+        public async Task create() {
+            await this.createSheet(gsController);
+            await setup();
+        }
+
+        public async Task setup() {
+            var setupRequest = gsController.createSheetRequest();
+
+            setupRequest.addRequests(this.clearSheet());
+            setupRequest.addRequest(this.addEmptyColumns(4));
+            setupRequest.addRequest(this.appendRow(
+                columnTitles.Select(title => {
+                    return new Cell { value = title };
+                }).ToList())
             );
 
             for (int i = 1; i <= 40; i++) {
@@ -61,21 +77,18 @@ namespace ACCStatsUploader {
                     value = "=IF(AND($B" + (i + 1) + "<>\"\";$C" + (i + 1) + "<>\"\");INDIRECT(\"lap_data!P\"&MATCH($C" + (i + 1) + ";lap_data!$B$1:$B;0));\"\")"
                 };
 
-                request.addRequest(
-                    baseFactory.addRow(
-                        sheetId,
-                        new List<object> {
-                            "" + i,
-                            inLap,
-                            outLap,
-                            startTime,
-                            endTime
-                        }
-                    ).asRequest()
-                );
+                setupRequest.addRequest(this.appendRow(new Cells {
+                    new Cell { value = i },
+                    new Cell { value = inLap },
+                    new Cell { value = outLap },
+                    new Cell { value = startTime },
+                    new Cell { value = endTime }
+                }));
 
-                await request.execute();
+                
             }
+
+            await setupRequest.execute();
         }
     }
 }

@@ -1,9 +1,15 @@
 ﻿using ACCStatsUploader.GoogleAPI;
+using Google.Apis.Sheets.v4.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ACCStatsUploader {
+    using IRequestList = IList<Request>;
+    using RequestList = List<Request>;
+    using ICells = IList<Cell>;
+    using Cells = List<Cell>;
+    using ColorConverter = Converters.ColorConverter;
     public class WeatherDataSheet : Sheet {
 
         public string sheetTitle {
@@ -60,6 +66,26 @@ namespace ACCStatsUploader {
             ));
 
             await setupRequest.execute();
+        }
+
+        public async Task insertWeatherevent(WeatherUpdateEvent weatherEvent) {
+            var insertEventRequest = gsController.createSheetRequest();
+
+            var cells = new Cells {
+                new Cell { value = weatherEvent.inGameClock.hourMinuteString },
+                new Cell { value = (weatherEvent.inGameClock.hours * 60 * 60) + (weatherEvent.inGameClock.minutes * 60) },
+                new Cell { value = weatherEvent.currentWeather },
+                new Cell { value = weatherEvent.airTemp },
+                new Cell { value = weatherEvent.trackTemp },
+                new Cell { value = weatherEvent.windSpeed },
+                new Cell { value = weatherEvent.trackState },
+                new Cell { value = weatherEvent.tenMinuteForecast },
+                new Cell { value = weatherEvent.thirtyMinuteForecast }
+            };
+
+            insertEventRequest.addRequests(this.insertRow(cells, new CellRange { startRow = 1 }));
+
+            await insertEventRequest.execute();
         }
     }
 }

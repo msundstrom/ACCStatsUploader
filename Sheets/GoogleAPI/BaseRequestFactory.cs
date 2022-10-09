@@ -105,27 +105,6 @@ namespace ACCStatsUploader.GoogleAPI {
         // Update requests
         public UpdateCellsRequest updateCell(
             int sheetId,
-            object cellData,
-            int column,
-            int row,
-            TextFormat? textFormat = null,
-            CellFormat? cellFormat = null
-        ) {
-            return new UpdateCellsRequest() {
-                Rows = new[] { createRowData(new List<object>{ cellData }, textFormat, cellFormat) },
-                Range = new GridRange() {
-                    SheetId = sheetId,
-                    StartColumnIndex = column,
-                    EndColumnIndex = column + 1,
-                    StartRowIndex = row,
-                    EndRowIndex = row + 1,
-                },
-                Fields = "*"
-            };
-        }
-
-        public UpdateCellsRequest updateCell(
-            int sheetId,
             Cell cellData,
             int column,
             int row,
@@ -165,7 +144,7 @@ namespace ACCStatsUploader.GoogleAPI {
             };
         }
 
-        public UpdateCellsRequest updateCells(
+        public Request updateCells(
             int sheetId,
             ICells rowData,
             CellRange range,
@@ -181,7 +160,7 @@ namespace ACCStatsUploader.GoogleAPI {
                     EndRowIndex = range.endRow,
                 },
                 Fields = fields ?? "*"
-            };
+            }.asRequest();
         }
 
         public UpdateCellsRequest updateColumn(
@@ -227,24 +206,6 @@ namespace ACCStatsUploader.GoogleAPI {
                 Fields = fields ?? "*",
             };
         }
-
-        public PasteDataRequest pasteData(
-            int sheetId,
-            IList<object> rowData,
-            int column,
-            int row
-        ) {
-            return new PasteDataRequest() {
-                Data = String.Join(";", rowData.ToArray()),
-                Type = "PASTE_VALUES",
-                Delimiter = ";",
-                Coordinate = new GridCoordinate() {
-                    SheetId = sheetId,
-                    RowIndex = 1
-                }
-            };
-        }
-
 
         // Delete requests
         public DeleteDimensionRequest deleteDimension(
@@ -332,26 +293,6 @@ namespace ACCStatsUploader.GoogleAPI {
                     }
                 },
                 Fields= "gridProperties.frozenColumnCount"
-            };
-        }
-
-        public UpdateBordersRequest setRightBorder(
-              int sheetId,
-              Border border,
-              int? startRow,
-              int? endRow,
-              int? startCol,
-              int? endCol
-        ) {
-            return new UpdateBordersRequest {
-                Range = new GridRange {
-                    SheetId = sheetId,
-                    StartRowIndex = startRow,
-                    EndRowIndex = endRow,
-                    StartColumnIndex = startCol,
-                    EndColumnIndex = endCol
-                },
-                Right = border,
             };
         }
 

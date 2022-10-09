@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ACCStatsUploader {
+    using ICells = IList<Cell>;
+    using Cells = List<Cell>;
     public class PitstopSheet: Sheet {
         public string sheetTitle {
             get {
@@ -66,6 +68,50 @@ namespace ACCStatsUploader {
             ));
 
             await setupRequest.execute();
+        }
+
+        public async Task insertPitInEvent(PitInEvent pitInEvent) {
+            var pitEventRequest = gsController.createSheetRequest();
+
+            pitEventRequest.addRequest(this.appendRow(new Cells {
+                new Cell { value = pitInEvent.sessionType },
+                new Cell { value = pitInEvent.type },
+                new Cell { value = pitInEvent.inLap },
+                new Cell { value = "" },
+                new Cell { value = pitInEvent.pitInClockTime },
+                new Cell { value = "" },
+                new Cell { value = pitInEvent.pitBoxInClockTime },
+                new Cell { value = "" },
+                new Cell { value = pitInEvent.driverName },
+                new Cell { value = pitInEvent.driveTimeLeft },
+                new Cell { value = pitInEvent.tyreSet }
+            }));
+
+            await pitEventRequest.execute();
+        }
+
+        public async Task insertPitOutEvent(PitOutEvent pitOutEvent) {
+            var pitEventRequest = gsController.createSheetRequest();
+
+            pitEventRequest.addRequest(this.appendRow(new Cells {
+                new Cell { value = pitOutEvent.sessionType },
+                new Cell { value = pitOutEvent.type },
+                new Cell { value = "" },
+                new Cell { value = pitOutEvent.outLap },
+                new Cell { value = "" },
+                new Cell { value = pitOutEvent.pitOutClockTime },
+                new Cell { value = "" },
+                new Cell { value = pitOutEvent.pitBoxOutClockTime },
+                new Cell { value = pitOutEvent.driverName },
+                new Cell { value = "" },
+                new Cell { value = pitOutEvent.tyreSet },
+                new Cell { value = pitOutEvent.initialTyrePressures.fl },
+                new Cell { value = pitOutEvent.initialTyrePressures.fr },
+                new Cell { value = pitOutEvent.initialTyrePressures.rl },
+                new Cell { value = pitOutEvent.initialTyrePressures.rr },
+            }));
+
+            await pitEventRequest.execute();
         }
     }
 }

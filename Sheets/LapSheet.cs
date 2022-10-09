@@ -107,5 +107,56 @@ namespace ACCStatsUploader {
 
             await setupRequest.execute();
         }
+
+        public async Task insertLap(LapInfo lapInfo) {
+            var insertLapRequest = gsController.createSheetRequest();
+
+            insertLapRequest.addRequest(this.appendRow(new Cells {
+                new Cell { value = lapInfo.sessionType },
+                new Cell { value = lapInfo.lapNumber },
+                new Cell { value = lapInfo.driverName },
+                new Cell { value = lapInfo.timingInfo.sectorTimes[0] },
+                new Cell { value = lapInfo.timingInfo.sectorTimes[1] },
+                new Cell { value = lapInfo.timingInfo.sectorTimes[2] },
+                new Cell { value = lapInfo.timingInfo.lastLaptime },
+                new Cell { value = lapInfo.timingInfo.isValid ? "Yes" : "No" },
+                new Cell { value = lapInfo.isOutLap ? "Yes" : "No" },
+                new Cell { value = lapInfo.isInLap ? "Yes" : "No" },
+                new Cell { value = lapInfo.fuelInfo.lapEnd },
+                new Cell { value = lapInfo.fuelInfo.fuelUsedDuringLap },
+                new Cell { value = lapInfo.sessionTimeLeft },
+                new Cell { value = lapInfo.position },
+                new Cell { value = lapInfo.carCount },
+                new Cell { value = lapInfo.gameClock },
+                new Cell { value = lapInfo.airTemp },
+                new Cell { value = lapInfo.trackTemp },
+                new Cell { value = lapInfo.damageInfo.carDamage.front },
+                new Cell { value = lapInfo.damageInfo.carDamage.right },
+                new Cell { value = lapInfo.damageInfo.carDamage.rear },
+                new Cell { value = lapInfo.damageInfo.carDamage.left },
+                new Cell { value = lapInfo.brakeInfo.brakePads.fl },
+                new Cell { value = lapInfo.brakeInfo.brakePads.fr },
+                new Cell { value = lapInfo.brakeInfo.brakePads.rl },
+                new Cell { value = lapInfo.brakeInfo.brakePads.rr },
+                new Cell { value = lapInfo.brakeInfo.averageTemps().fl },
+                new Cell { value = lapInfo.brakeInfo.averageTemps().fr },
+                new Cell { value = lapInfo.brakeInfo.averageTemps().rl },
+                new Cell { value = lapInfo.brakeInfo.averageTemps().rr },
+                new Cell { value = lapInfo.brakeInfo.maxTemps().fl },
+                new Cell { value = lapInfo.brakeInfo.maxTemps().fr },
+                new Cell { value = lapInfo.brakeInfo.maxTemps().rl },
+                new Cell { value = lapInfo.brakeInfo.maxTemps().rr },
+                new Cell { value = lapInfo.tyreInfo.averagePressures().fl },
+                new Cell { value = lapInfo.tyreInfo.averagePressures().fr },
+                new Cell { value = lapInfo.tyreInfo.averagePressures().rl },
+                new Cell { value = lapInfo.tyreInfo.averagePressures().rr },
+                new Cell { value = lapInfo.tyreInfo.maxPressures().fl },
+                new Cell { value = lapInfo.tyreInfo.maxPressures().fr },
+                new Cell { value = lapInfo.tyreInfo.maxPressures().rl },
+                new Cell { value = lapInfo.tyreInfo.maxPressures().rr },
+            }));
+
+            await insertLapRequest.execute();
+        }
     }
 }

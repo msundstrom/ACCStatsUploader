@@ -1,14 +1,10 @@
 ﻿using ACCStatsUploader.GoogleAPI;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ACCStatsUploader {
-    using ICells = IList<Cell>;
     using Cells = List<Cell>;
-    public class DriverOverviewSheet: Sheet {
+    public class DriverOverviewSheet : Sheet {
         public string sheetTitle {
             get {
                 return SHEET_NAMES.DRIVER_OVERVIEW;

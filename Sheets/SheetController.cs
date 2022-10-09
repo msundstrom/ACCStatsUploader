@@ -93,133 +93,19 @@ namespace ACCStatsUploader {
         }
 
         public async Task insertLapInfo(LapInfo lapInfo) {
-            if (lapInfo.timingInfo.sectorTimes.Count != 3) {
-                MessageBox.Show("Wrong number of sectors!");
-            }
-
-            await gsController.appendRow(
-                lapSheet.sheetId,
-                new List<object> {
-                    lapInfo.sessionType,
-                    lapInfo.lapNumber,
-                    lapInfo.driverName,
-                    lapInfo.timingInfo.sectorTimes[0],
-                    lapInfo.timingInfo.sectorTimes[1],
-                    lapInfo.timingInfo.sectorTimes[2],
-                    lapInfo.timingInfo.lastLaptime,
-                    lapInfo.timingInfo.isValid ? "Yes" : "No",
-                    lapInfo.isOutLap ? "Yes" : "No",
-                    lapInfo.isInLap ? "Yes" : "No",
-                    lapInfo.fuelInfo.lapEnd,
-                    lapInfo.fuelInfo.fuelUsedDuringLap,
-                    lapInfo.sessionTimeLeft,
-                    lapInfo.position,
-                    lapInfo.carCount,
-                    lapInfo.gameClock,
-                    lapInfo.airTemp,
-                    lapInfo.trackTemp,
-                    lapInfo.damageInfo.carDamage.front,
-                    lapInfo.damageInfo.carDamage.right,
-                    lapInfo.damageInfo.carDamage.rear,
-                    lapInfo.damageInfo.carDamage.left,
-                    lapInfo.brakeInfo.brakePads.fl,
-                    lapInfo.brakeInfo.brakePads.fr,
-                    lapInfo.brakeInfo.brakePads.rl,
-                    lapInfo.brakeInfo.brakePads.rr,
-                    lapInfo.brakeInfo.averageTemps().fl,
-                    lapInfo.brakeInfo.averageTemps().fr,
-                    lapInfo.brakeInfo.averageTemps().rl,
-                    lapInfo.brakeInfo.averageTemps().rr,
-                    lapInfo.brakeInfo.maxTemps().fl,
-                    lapInfo.brakeInfo.maxTemps().fr,
-                    lapInfo.brakeInfo.maxTemps().rl,
-                    lapInfo.brakeInfo.maxTemps().rr,
-                    lapInfo.tyreInfo.averageTemps().fl,
-                    lapInfo.tyreInfo.averageTemps().fr,
-                    lapInfo.tyreInfo.averageTemps().rl,
-                    lapInfo.tyreInfo.averageTemps().rr,
-                    lapInfo.tyreInfo.maxTemps().fl,
-                    lapInfo.tyreInfo.maxTemps().fr,
-                    lapInfo.tyreInfo.maxTemps().rl,
-                    lapInfo.tyreInfo.maxTemps().rr,
-                    lapInfo.tyreInfo.averagePressures().fl,
-                    lapInfo.tyreInfo.averagePressures().fr,
-                    lapInfo.tyreInfo.averagePressures().rl,
-                    lapInfo.tyreInfo.averagePressures().rr,
-                    lapInfo.tyreInfo.maxPressures().fl,
-                    lapInfo.tyreInfo.maxPressures().fr,
-                    lapInfo.tyreInfo.maxPressures().rl,
-                    lapInfo.tyreInfo.maxPressures().rr
-                },
-                null,
-                true
-            );
+            await lapSheet.insertLap(lapInfo);
         }
 
         public async Task insertPitInEvent(PitInEvent pitInEvent) {
-            await gsController.appendRow(
-                pitstopSheet.sheetId,
-                new List<object> {
-                    pitInEvent.sessionType,
-                    "PitIn",
-                    pitInEvent.inLap,
-                    "",
-                    pitInEvent.pitInClockTime,
-                    "",
-                    pitInEvent.pitBoxInClockTime,
-                    "",
-                    pitInEvent.driverName,
-                    pitInEvent.driveTimeLeft,
-                    pitInEvent.tyreSet
-                },
-                null,
-                true
-            );
+            await pitstopSheet.insertPitInEvent(pitInEvent);
         }
 
         public async Task insertPitOutEvent(PitOutEvent pitOutEvent) {
-            await gsController.appendRow(
-                pitstopSheet.sheetId,
-                new List<object> {
-                    pitOutEvent.sessionType,
-                    "PitOut",
-                    "",
-                    pitOutEvent.outLap,
-                    "",
-                    pitOutEvent.pitOutClockTime,
-                    "",
-                    pitOutEvent.pitBoxOutClockTime,
-                    pitOutEvent.driverName,
-                    "",
-                    pitOutEvent.tyreSet,
-                    pitOutEvent.initialTyrePressures.fl,
-                    pitOutEvent.initialTyrePressures.fr,
-                    pitOutEvent.initialTyrePressures.rl,
-                    pitOutEvent.initialTyrePressures.rr
-                }
-            );
+            await pitstopSheet.insertPitOutEvent(pitOutEvent);
         }
 
         public async Task insertWeatherEvent(WeatherUpdateEvent weatherEvent) {
-            var sheetRequest = gsController.createSheetRequest();
-            sheetRequest.addRequests(
-                compoundRequestFactory.insertRow(
-                weatherSheet.sheetId,
-                1,
-                new List<object> {
-                    weatherEvent.inGameClock.hourMinuteString,
-                    (weatherEvent.inGameClock.hours * 60 * 60) + (weatherEvent.inGameClock.minutes * 60),
-                    weatherEvent.currentWeather,
-                    weatherEvent.airTemp,
-                    weatherEvent.trackTemp,
-                    weatherEvent.windSpeed,
-                    weatherEvent.trackState,
-                    weatherEvent.tenMinuteForecast,
-                    weatherEvent.thirtyMinuteForecast
-                }
-            ));
-
-            await sheetRequest.execute();
+            await weatherSheet.insertWeatherevent(weatherEvent);
         }
     }
 }

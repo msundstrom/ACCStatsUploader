@@ -65,7 +65,7 @@ namespace ACCStatsUploader {
 
         public static Request updateCells(this Sheet sheet, CellRange range, ICells cells, string? fields = null) {
             var baseFactory = new BaseRequestFactory();
-            return baseFactory.updateCells(sheet.sheetId, cells, range, fields).asRequest();
+            return baseFactory.updateCells(sheet.sheetId, cells, range, fields);
         }
 
         public static Request updateColumn(this Sheet sheet, CellRange range, ICells cells, string? fields = null) {
@@ -106,6 +106,14 @@ namespace ACCStatsUploader {
         public static Request freezeColumns(this Sheet sheet, int colCount) {
             var baseFactory = new BaseRequestFactory();
             return baseFactory.freezeColumns(sheet.sheetId, colCount).asRequest();
+        }
+
+        public static IRequestList insertRow(this Sheet sheet, Cells cells, CellRange range) {
+            var baseFactory = new BaseRequestFactory();
+            return new RequestList {
+                baseFactory.insertDimension(sheet.sheetId, Dimension.ROWS, range.startRow ?? 0, 1),
+                baseFactory.updateCells(sheet.sheetId, cells, range)
+            };
         }
     }
 }

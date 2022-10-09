@@ -5,6 +5,7 @@ using System.Text;
 
 namespace ACCStatsUploader {
     public class PitOutEvent {
+        public string type = "PitOut";
         public string sessionType;
         public float pitOutClockTime;
         public float pitBoxOutClockTime;

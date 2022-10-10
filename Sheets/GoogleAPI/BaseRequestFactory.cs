@@ -6,8 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
+using ACCStatsUploader;
+using ACCStatsUploader.Converters;
 
 namespace ACCStatsUploader.GoogleAPI {
+    using ICells = IList<Cell>;
+    using Cells = List<Cell>;
 
     public enum Dimension {
         ROWS,
@@ -18,6 +22,18 @@ namespace ACCStatsUploader.GoogleAPI {
         HORIZONTAL,
         VERTICAL,
         ALL
+    }
+
+    public enum CellVerticalAlignment {
+        TOP,
+        MIDDLE,
+        BOTTOM
+    }
+
+    public enum CellHorizontalAlignment {
+        LEFT,
+        CENTER,
+        RIGHT
     }
 
     public class BaseRequestFactory {
@@ -46,7 +62,18 @@ namespace ACCStatsUploader.GoogleAPI {
             };
         }
 
-        public InsertDimensionRequest insertDimension(
+        public Request addRow(
+            int sheetId,
+            ICells rowData
+        ) {
+            return new AppendCellsRequest() {
+                SheetId = sheetId,
+                Rows = new[] { createRowData(rowData) },
+                Fields = "*",
+            }.asRequest();
+        }
+
+        public Request insertDimension(
             int sheetId,
             Dimension dimension,
             int startIndex,
@@ -60,7 +87,7 @@ namespace ACCStatsUploader.GoogleAPI {
                     EndIndex = startIndex + count
                 },
                 InheritFromBefore = true
-            };
+            }.asRequest();
         }
 
         public AppendDimensionRequest appendDimension(
@@ -76,6 +103,26 @@ namespace ACCStatsUploader.GoogleAPI {
         }
 
         // Update requests
+        public UpdateCellsRequest updateCell(
+            int sheetId,
+            Cell cellData,
+            int column,
+            int row,
+            string? fields = null
+        ) {
+            return new UpdateCellsRequest() {
+                Rows = new[] { createRowData(new Cells { cellData }) },
+                Range = new GridRange() {
+                    SheetId = sheetId,
+                    StartColumnIndex = column,
+                    EndColumnIndex = column + 1,
+                    StartRowIndex = row,
+                    EndRowIndex = row + 1,
+                },
+                Fields = fields ?? "*"
+            };
+        }
+
         public UpdateCellsRequest updateCells(
             int sheetId,
             IList<object> rowData,
@@ -97,13 +144,33 @@ namespace ACCStatsUploader.GoogleAPI {
             };
         }
 
+        public Request updateCells(
+            int sheetId,
+            ICells rowData,
+            CellRange range,
+            string? fields = null
+        ) {
+            return new UpdateCellsRequest() {
+                Rows = new[] { createRowData(rowData) },
+                Range = new GridRange() {
+                    SheetId = sheetId,
+                    StartColumnIndex = range.startCol,
+                    EndColumnIndex = range.endCol,
+                    StartRowIndex = range.startRow,
+                    EndRowIndex = range.endRow,
+                },
+                Fields = fields ?? "*"
+            }.asRequest();
+        }
+
         public UpdateCellsRequest updateColumn(
             int sheetId,
             IList<object> column,
             int columnIndex,
             int startRow,
             TextFormat? textFormat = null,
-            CellFormat? cellFormat = null
+            CellFormat? cellFormat = null,
+            string? fields = null
         ) {
             var colData = column.Select(val => new List<object> { val });
 
@@ -116,27 +183,29 @@ namespace ACCStatsUploader.GoogleAPI {
                     EndColumnIndex= columnIndex + 1,
                     EndRowIndex= startRow + colData.Count(),
                 },
-                Fields = "*",
+                Fields = fields ?? "*",
             };
         }
 
-        public PasteDataRequest pasteData(
+        public UpdateCellsRequest updateColumn(
             int sheetId,
-            IList<object> rowData,
-            int column,
-            int row
+            ICells columnData,
+            int columnIndex,
+            int startRow,
+            string? fields = null
         ) {
-            return new PasteDataRequest() {
-                Data = String.Join(";", rowData.ToArray()),
-                Type = "PASTE_VALUES",
-                Delimiter = ";",
-                Coordinate = new GridCoordinate() {
+            return new UpdateCellsRequest() {
+                Rows = createColumnData(columnData),
+                Range = new GridRange() {
                     SheetId = sheetId,
-                    RowIndex = 1
-                }
+                    StartColumnIndex = columnIndex,
+                    StartRowIndex = startRow,
+                    EndColumnIndex = columnIndex + 1,
+                    EndRowIndex = startRow + columnData.Count(),
+                },
+                Fields = fields ?? "*",
             };
         }
-
 
         // Delete requests
         public DeleteDimensionRequest deleteDimension(
@@ -159,10 +228,10 @@ namespace ACCStatsUploader.GoogleAPI {
         public MergeCellsRequest mergeRange(
             int sheetId,
             MergeType mergeType,
-            int startColumn,
-            int startRow,
-            int endColumn,
-            int endRow
+            int? startColumn = null,
+            int? startRow = null,
+            int? endColumn = null,
+            int? endRow = null
         ) {
             return new MergeCellsRequest {
                 Range = new GridRange {
@@ -191,9 +260,62 @@ namespace ACCStatsUploader.GoogleAPI {
                     SheetId = sheetId,
                     Dimension = convertDimension(dimension),
                     StartIndex = start,
-                    EndIndex = start
+                    EndIndex = end
                 },
                 Fields = "*"
+            };
+        }
+
+        public UpdateSheetPropertiesRequest freezeRows(
+            int sheetId,
+            int rowCount
+        ) {
+            return new UpdateSheetPropertiesRequest {
+                Properties = new SheetProperties {
+                    SheetId = sheetId,
+                    GridProperties = new GridProperties {
+                        FrozenRowCount = rowCount,
+                    }
+                },
+                Fields = "gridProperties.frozenRowCount"
+            };
+        }
+
+        public UpdateSheetPropertiesRequest freezeColumns(
+            int sheetId,
+            int colCount
+        ) {
+            return new UpdateSheetPropertiesRequest {
+                Properties = new SheetProperties {
+                    SheetId = sheetId,
+                    GridProperties = new GridProperties {
+                        FrozenColumnCount = colCount,
+                    }
+                },
+                Fields= "gridProperties.frozenColumnCount"
+            };
+        }
+
+        public UpdateBordersRequest setBorder(
+              int sheetId,
+              BorderStyle borderStyle,
+              BorderEdge edge,
+              CellRange cellRange
+        ) {
+            var border = new Border { Style = borderStyle.asString() };
+
+            return new UpdateBordersRequest {
+                Range = new GridRange {
+                    SheetId = sheetId,
+                    StartRowIndex = cellRange.startRow,
+                    EndRowIndex = cellRange.endRow,
+                    StartColumnIndex = cellRange.startCol,
+                    EndColumnIndex = cellRange.endCol
+                },
+                Top = edge == BorderEdge.TOP ? border : null,
+                Right = edge == BorderEdge.RIGHT ? border : null,
+                Bottom = edge == BorderEdge.BOTTOM ? border : null,
+                Left = edge == BorderEdge.LEFT ? border : null,
             };
         }
 
@@ -289,6 +411,35 @@ namespace ACCStatsUploader.GoogleAPI {
             }
 
             return row;
+        }
+
+        private RowData createRowData(
+            ICells rowData
+        ) {
+            RowData row = new RowData();
+            row.Values = rowData.Select(rawCell => {
+                return new CellData {
+                    UserEnteredFormat = rawCell.format,
+                    UserEnteredValue = createValueFrom(rawCell.value)
+                };
+            }).ToList();
+
+            return row;
+        }
+
+        private IList<RowData> createColumnData(
+            ICells rowData
+        ) {
+            return rowData.Select(cell => {
+                return new RowData {
+                    Values = new List<CellData> {
+                        new CellData {
+                            UserEnteredFormat = cell.format,
+                            UserEnteredValue = createValueFrom(cell.value),
+                        }
+                    }
+                };
+             }).ToList();
         }
 
         private IList<RowData> createColumnData(

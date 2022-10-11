@@ -68,7 +68,7 @@ namespace ACCStatsUploader {
             await setupRequest.execute();
         }
 
-        public async Task insertWeatherevent(WeatherUpdateEvent weatherEvent) {
+        public async Task insertWeatherEvent(WeatherUpdateEvent weatherEvent) {
             var insertEventRequest = gsController.createSheetRequest();
 
             var cells = new Cells {
@@ -83,7 +83,7 @@ namespace ACCStatsUploader {
                 new Cell { value = weatherEvent.thirtyMinuteForecast }
             };
 
-            insertEventRequest.addRequests(this.insertRow(cells, new CellRange { startRow = 1 }));
+            insertEventRequest.addRequests(this.insertRow(cells, new CellRange { startRow = 1, endRow = 2 }));
 
             await insertEventRequest.execute();
         }

@@ -56,7 +56,12 @@ namespace ACCStatsUploader {
             Physics unwrappedPhysics = (Physics)latestPhysicsUpdate;
             StaticInfo unwrappedStaticInfo = (StaticInfo)latestStaticInfo;
 
-            if (unwrappedPhysics.packetId == lastPacketId) {
+
+            // some hacks to try to achieve a "not owning car" filter
+            if (
+                unwrappedPhysics.packetId == lastPacketId || 
+                unwrappedPhysics.finalFF == 0.0
+            ) {
                 return;
             }
 

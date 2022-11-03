@@ -190,7 +190,7 @@ namespace ACCStatsUploader {
                 var outLapPace = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");IF(B" + actualRow + "=1;\"-\";INDIRECT(\"lap_data!G\"&MATCH($B" + actualRow + ";lap_data!$B$1:$B;0))/86400000);\"\")";
                 var inLapPace = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");IF(INDIRECT(\"lap_data!M\"&MATCH($C" + actualRow + ";lap_data!B:B;0))=0;\"-\";INDIRECT(\"lap_data!G\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0))/86400000);\"\")";
                 var fuelUse = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!L\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)+1&\":L\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var tyreSet = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDEX(UNIQUE(INDIRECT(\"pit_stop_data!K\"&MATCH(C" + actualRow + ";pit_stop_data!$C$1:$C));1);\"\");\"\")";
+                var tyreSet = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");IFNA(INDEX(UNIQUE(INDIRECT(\"pit_stop_data!K\"&MATCH(B" + actualRow + ";pit_stop_data!$D$1:$D));1);\"\");INDEX(UNIQUE(INDIRECT(\"pit_stop_data!K\"&MATCH(C" + actualRow + ";pit_stop_data!$C$1:$C));1);\"\"));\"\")";
 
                 object startTyrePressuresFL;
                 object startTyrePressuresFR;
@@ -209,21 +209,20 @@ namespace ACCStatsUploader {
                     startTyrePressuresRR = new Formula { value = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDIRECT(\"pit_stop_data!O\"&MATCH($B" + actualRow + ";pit_stop_data!$D$1:$D;0));\"\")" };
                 }
                 
+                var avgTyrePressuresFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AQ\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AR\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AS\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AT\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
-                var avgTyrePressuresFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyrePressuresFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AR\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyrePressuresRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AS\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyrePressuresRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AT\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
+                var avgTyreTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AM\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AN\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AO\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AP\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
-                var avgTyreTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AM\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyreTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AN\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyreTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AO\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgTyreTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AP\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-
-                var avgBrakeTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AA\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgBrakeTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AB\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgBrakeTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AC\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
-                var avgBrakeTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AD\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)-10));\"\")";
+                var avgBrakeTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AA\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AB\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AC\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AD\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
 
                 var cells = new Cells {
@@ -242,7 +241,7 @@ namespace ACCStatsUploader {
                     new Cell { value = new Formula { value = worstLap }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },
                     new Cell { value = new Formula { value = outLapPace }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },
                     new Cell { value = new Formula { value = inLapPace }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },
-                    new Cell { value = new Formula { value = fuelUse }, format = CellFormats.centeredWithNumberFormat(tyrePressureFormat) },
+                    new Cell { value = new Formula { value = fuelUse }, format = CellFormats.centeredWithNumberFormat(NumberFormats.fuelFormat) },
                     new Cell { value = new Formula { value = tyreSet }, format = centeredFormat },
                     new Cell { value = startTyrePressuresFL, format = CellFormats.centeredWithNumberFormat(NumberFormats.psiFormat) },
                     new Cell { value = startTyrePressuresFR, format = CellFormats.centeredWithNumberFormat(NumberFormats.psiFormat) },

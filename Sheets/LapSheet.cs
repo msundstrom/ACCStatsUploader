@@ -111,7 +111,7 @@ namespace ACCStatsUploader {
         public async Task insertLap(LapInfo lapInfo) {
             var insertLapRequest = gsController.createSheetRequest();
 
-            insertLapRequest.addRequest(this.appendRow(new Cells {
+            insertLapRequest.addRequest(this.appendRow(new Cells {                      
                 new Cell { value = lapInfo.sessionType },
                 new Cell { value = lapInfo.lapNumber },
                 new Cell { value = lapInfo.driverName },
@@ -146,6 +146,14 @@ namespace ACCStatsUploader {
                 new Cell { value = lapInfo.brakeInfo.maxTemps().fr },
                 new Cell { value = lapInfo.brakeInfo.maxTemps().rl },
                 new Cell { value = lapInfo.brakeInfo.maxTemps().rr },
+                new Cell { value = lapInfo.tyreInfo.averageTemps().fl },
+                new Cell { value = lapInfo.tyreInfo.averageTemps().fr },
+                new Cell { value = lapInfo.tyreInfo.averageTemps().rl },
+                new Cell { value = lapInfo.tyreInfo.averageTemps().rr },
+                new Cell { value = lapInfo.tyreInfo.maxTemps().fl },
+                new Cell { value = lapInfo.tyreInfo.maxTemps().fr },
+                new Cell { value = lapInfo.tyreInfo.maxTemps().rl },
+                new Cell { value = lapInfo.tyreInfo.maxTemps().rr },
                 new Cell { value = lapInfo.tyreInfo.averagePressures().fl },
                 new Cell { value = lapInfo.tyreInfo.averagePressures().fr },
                 new Cell { value = lapInfo.tyreInfo.averagePressures().rl },

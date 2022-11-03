@@ -36,54 +36,6 @@ namespace ACCStatsUploader {
             }
         }
 
-        private CellFormat centeredTimeFormat {
-            get {
-                return new CellFormat {
-                    VerticalAlignment = AlignmentConverter.vertical(CellVerticalAlignment.MIDDLE),
-                    HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER),
-                    NumberFormat = NumberFormats.laptimeFormat
-                };
-            }
-        }
-
-        private CellFormat centeredPsiFormat {
-            get {
-                return new CellFormat {
-                    VerticalAlignment = AlignmentConverter.vertical(CellVerticalAlignment.MIDDLE),
-                    HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER),
-                    NumberFormat = NumberFormats.psiFormat
-                };
-            }
-        }
-
-        private CellFormat centeredTemperatureFormat {
-            get {
-                return new CellFormat {
-                    VerticalAlignment = AlignmentConverter.vertical(CellVerticalAlignment.MIDDLE),
-                    HorizontalAlignment = AlignmentConverter.horizontal(CellHorizontalAlignment.CENTER),
-                    NumberFormat = NumberFormats.temperatureFormat
-                };
-            }
-        }
-
-        private NumberFormat tyrePressureFormat {
-            get {
-                return new NumberFormat { Type = "NUMBER", Pattern = "##.#" };
-            }
-        }
-
-        private NumberFormat temperatureFormat {
-            get {
-                return new NumberFormat { Type = "NUMBER", Pattern = "###" };
-            }
-        }
-
-        private NumberFormat lapTimeFormat {
-            get {
-                return new NumberFormat { Type = "DATE_TIME", Pattern = "mm:ss.000" };
-            }
-        }
-
         private IList<object> secondRowTitles {
             get {
                 return new List<object> {

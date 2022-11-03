@@ -105,7 +105,7 @@ namespace ACCStatsUploader {
         }
 
         public async Task insertWeatherEvent(WeatherUpdateEvent weatherEvent) {
-            await weatherSheet.insertWeatherevent(weatherEvent);
+            await weatherSheet.insertWeatherEvent(weatherEvent);
         }
     }
 }

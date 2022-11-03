@@ -28,13 +28,13 @@ namespace ACCStatsUploader.GoogleAPI {
 
         public static NumberFormat psiFormat {
             get {
-                return new NumberFormat { Type = "NUMBER", Pattern = "##.#" };
+                return new NumberFormat { Type = "NUMBER", Pattern = "##.0" };
             }
         }
 
         public static NumberFormat fuelFormat {
             get {
-                return new NumberFormat { Type = "NUMBER", Pattern = "##.##" };
+                return new NumberFormat { Type = "NUMBER", Pattern = "##.00" };
             }
         }
     }

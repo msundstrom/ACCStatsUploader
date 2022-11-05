@@ -60,14 +60,14 @@ namespace ACCStatsUploader {
 
             for (int i = 1; i <= 40; i++) {
                 object inLap = new Formula {
-                    value = "=IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!D:D\");INDIRECT(\"pit_stop_data!B:B\") = \"PitOut\");$A" + (i + 1) + "-1);\"\")"
+                    value = "=IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!D:D\");INDIRECT(\"pit_stop_data!B:B\") = \"PitOut\";INDIRECT(\"pit_stop_data!A:A\") = \"Race\");$A" + (i + 1) + "-1);\"\")"
                 };
                 if (i == 1) {
                     inLap = 1;
                 }
 
                 var outLap = new Formula {
-                    value = "=IF(INDIRECT(\"B\"&ROW())<>\"\";IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!C:C\");INDIRECT(\"pit_stop_data!B:B\") = \"PitIn\");$A" + (i + 1) + ");IFNA(INDEX(FILTER(INDIRECT(\"lap_data!B:B\");INDIRECT(\"lap_data!M:M\") = 0);1)));\"\")"
+                    value = "=IF(INDIRECT(\"B\"&ROW())<>\"\";IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!C:C\");INDIRECT(\"pit_stop_data!B:B\") = \"PitIn\";INDIRECT(\"pit_stop_data!A:A\") = \"Race\");$A" + (i + 1) + ");IFNA(INDEX(FILTER(INDIRECT(\"lap_data!B:B\");INDIRECT(\"lap_data!M:M\") = 0);1)));\"\")"
                 };
 
                 var startTime = new Formula {

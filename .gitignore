@@ -3,3 +3,4 @@ ACCStatsUploader/obj/*
 ACCStatsUploader/credentials.json
 .vs/
 .vscode/
+obj/

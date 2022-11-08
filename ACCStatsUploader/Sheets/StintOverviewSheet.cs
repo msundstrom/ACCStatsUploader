@@ -185,7 +185,7 @@ namespace ACCStatsUploader {
                     new Cell { value = new Formula { value = outLap }, format = CellFormats.centered },
                     new Cell { value = new Formula { value = inLap }, format = CellFormats.centered },
                     new Cell { value = new Formula { value = stintLaps }, format = CellFormats.centered },
-                    new Cell { value = new Formula { value = stintDuration }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },
+                    new Cell { value = new Formula { value = stintDuration }, format = CellFormats.centeredWithNumberFormat(NumberFormats.stintTimeFormat) },
                     new Cell { value = new Formula { value = driver }, format = CellFormats.centered },
                     new Cell { value = new Formula { value = avgPace }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },
                     new Cell { value = new Formula { value = avgPaceExcludingInAndOut }, format = CellFormats.centeredWithNumberFormat(NumberFormats.laptimeFormat) },

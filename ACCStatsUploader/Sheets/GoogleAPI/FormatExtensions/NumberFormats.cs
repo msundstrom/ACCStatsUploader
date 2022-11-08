@@ -37,5 +37,11 @@ namespace ACCStatsUploader.GoogleAPI {
                 return new NumberFormat { Type = "NUMBER", Pattern = "##.00" };
             }
         }
+
+        public static NumberFormat stintTimeFormat {
+            get {
+                return new NumberFormat { Type = "DATE_TIME", Pattern = "hh:mm:ss" };
+            }
+        }
     }
 }

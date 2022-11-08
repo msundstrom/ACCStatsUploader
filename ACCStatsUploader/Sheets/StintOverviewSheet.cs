@@ -136,7 +136,7 @@ namespace ACCStatsUploader {
                 var stintDuration = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");(INDIRECT(\"stint_matrix!E\"&ROW()-1)-INDIRECT(\"stint_matrix!D\"&ROW()-1))/86400;\"\")";
                 var driver = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDEX(UNIQUE(INDIRECT(\"lap_data!C1\"&INDIRECT(\"B\"&ROW())+1&\":C\"&INDIRECT(\"C\"&ROW())+1));1);\"\")";
                 var avgPace = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)))/86400000;\"\")";
-                var avgPaceExcludingInAndOut = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)-1))/86400000;\"\")";
+                var avgPaceExcludingInAndOut = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)+1&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)-1))/86400000;\"\")";
                 var bestLap = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");MIN(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)-1))/86400000;\"\")";
                 var worstLap = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");MAX(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)+1&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)-1))/86400000;\"\")";
                 var outLapPace = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");IF(B" + actualRow + "=1;\"-\";INDIRECT(\"lap_data!G\"&MATCH($B" + actualRow + ";lap_data!$B$1:$B;0))/86400000);\"\")";
@@ -162,19 +162,19 @@ namespace ACCStatsUploader {
                 }
                 
                 var avgTyrePressuresFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AQ\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyrePressuresFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AR\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyrePressuresRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AS\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyrePressuresRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AT\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AR\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AR\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AS\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AS\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyrePressuresRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AT\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AT\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
-                var avgTyreTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AM\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyreTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AN\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyreTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AO\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgTyreTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AP\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AM\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AM\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AN\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AN\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AO\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AO\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgTyreTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AP\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AP\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
-                var avgBrakeTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AA\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgBrakeTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AB\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgBrakeTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AC\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
-                var avgBrakeTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AD\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AQ\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempFL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AA\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AA\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempFR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AB\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AB\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempRL = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AC\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AC\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
+                var avgBrakeTempRR = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!AD\"&MAX(MATCH($C" + actualRow + ";lap_data!$B$1:$B;0) - 10;2)&\":AD\"&MATCH($C" + actualRow + ";lap_data!$B$1:$B;0)));\"\")";
 
 
                 var cells = new Cells {

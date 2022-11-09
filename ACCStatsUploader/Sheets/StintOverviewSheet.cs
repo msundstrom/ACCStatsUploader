@@ -150,10 +150,10 @@ namespace ACCStatsUploader {
                 object startTyrePressuresRR;
 
                 if (i == 2) {
-                    startTyrePressuresFL = "";
-                    startTyrePressuresFR = "";
-                    startTyrePressuresRL = "";
-                    startTyrePressuresRR = "";
+                    startTyrePressuresFL = "-";
+                    startTyrePressuresFR = "-";
+                    startTyrePressuresRL = "-";
+                    startTyrePressuresRR = "-";
                 } else {
                     startTyrePressuresFL = new Formula { value = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDIRECT(\"pit_stop_data!L\"&MATCH($B" + actualRow + ";pit_stop_data!$D$1:$D;0));\"\")" };
                     startTyrePressuresFR = new Formula { value = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDIRECT(\"pit_stop_data!M\"&MATCH($B" + actualRow + ";pit_stop_data!$D$1:$D;0));\"\")" };

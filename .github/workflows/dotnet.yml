@@ -2,13 +2,12 @@ name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    tags:
+    - 'v[0-9]+\.[0-9]+'
 
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -19,8 +18,6 @@ jobs:
       run: dotnet restore
     - name: Find and Replace
       run: (Get-Content ACCStatsUploader/SheetsAPIController.cs) -replace 'asf = "replace_me"', 'asf = "${{ secrets.CLIENT_SECRET_LESS_PERMISSIONS }}"' | Out-File -encoding UTF8 SheetsAPIController.cs
-    - name: prit 
-      run: type SheetsAPIController.cs
     - name: Publish
       run: dotnet publish -c release -o bin\publish
     - name: Archive Release
@@ -32,7 +29,7 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: ${{ github.ref_name }}
         prerelease: false
-        title: "Development Build"
-        files: "release.zip"
+        title: "${{ github.ref_name }}"
+        files: "${{ github.ref_name }}-release.zip"

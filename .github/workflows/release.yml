@@ -18,7 +18,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Find and Replace
-      run: (Get-Content ACCStatsUploader/SheetsAPIController.cs) -replace 'asf = "replace_me"', 'asf = "${{ secrets.CLIENT_SECRET_LESS_PERMISSIONS }}"' | Out-File -encoding UTF8 SheetsAPIController.cs
+      run: (Get-Content ACCStatsUploader/SheetsAPIController.cs) -replace 'asf = "replace_me"', 'asf = "${{ secrets.CLIENT_SECRET_LESS_PERMISSIONS }}"' | Out-File -encoding UTF8 ACCStatsUploader/SheetsAPIController.cs
     - name: Publish
       run: dotnet publish -c release -o bin\publish
     - name: Archive Release

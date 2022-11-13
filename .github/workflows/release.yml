@@ -25,7 +25,7 @@ jobs:
       uses: thedoctor0/zip-release@main
       with:
         type: 'zip'
-        filename: 'release.zip'
+        filename: "${{ github.ref_name }}-release.zip"
         path: 'bin\publish'
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:

@@ -22,10 +22,11 @@ namespace ACCStatsUploader {
         enum TRACK_STATE {
             ON_TRACK,
             PIT_LANE,
-            PIT_BOX
+            PIT_BOX,
+            UNDETERMINED
         }
 
-        private TRACK_STATE currentState = TRACK_STATE.ON_TRACK;
+        private TRACK_STATE currentState = TRACK_STATE.UNDETERMINED;
 
         public TelemetryController(SheetController sheetController) {
             this.sheetController = sheetController;
@@ -99,36 +100,41 @@ namespace ACCStatsUploader {
             TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
             if (newStateMaybe != null) {
                 TRACK_STATE newState = (TRACK_STATE)newStateMaybe;
-                switch (newState) {
-                    case TRACK_STATE.ON_TRACK:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            // put out event
-                            lapInfo.isOutLap = true;
-                            if (pitOutEvent == null) {
+
+                if (currentState == TRACK_STATE.UNDETERMINED) {
+                    currentState = newState;
+                } else {
+                    switch (newState) {
+                        case TRACK_STATE.ON_TRACK:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                // put out event
+                                lapInfo.isOutLap = true;
+                                if (pitOutEvent == null) {
+                                    pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
+                                }
+                                pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
+                                await sheetController.insertPitOutEvent(pitOutEvent);
+                                pitOutEvent = null;
+                            }
+                            break;
+                        case TRACK_STATE.PIT_LANE:
+                            if (currentState == TRACK_STATE.ON_TRACK) {
+                                pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
+                                lapInfo.isInLap = true;
+                            } else {
+                                // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                             }
-                            pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
-                            await sheetController.insertPitOutEvent(pitOutEvent);
-                            pitOutEvent = null;
-                        }
-                        break;
-                    case TRACK_STATE.PIT_LANE:
-                        if (currentState == TRACK_STATE.ON_TRACK) {
-                            pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
-                            lapInfo.isInLap = true;
-                        } else {
-                            // pit box out event?
-                            pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                        }
 
-                        break;
-                    case TRACK_STATE.PIT_BOX:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            pitInEvent!.setInBox(unwrappedGraphics);
-                            await sheetController.insertPitInEvent(pitInEvent);
-                            pitInEvent = null;
-                        }
-                        break;
+                            break;
+                        case TRACK_STATE.PIT_BOX:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                pitInEvent!.setInBox(unwrappedGraphics);
+                                await sheetController.insertPitInEvent(pitInEvent);
+                                pitInEvent = null;
+                            }
+                            break;
+                    }
                 }
 
                 currentState = newState;
@@ -204,36 +210,41 @@ namespace ACCStatsUploader {
             TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
             if (newStateMaybe != null) {
                 TRACK_STATE newState = (TRACK_STATE)newStateMaybe;
-                switch (newState) {
-                    case TRACK_STATE.ON_TRACK:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            // put out event
-                            lapInfo.isOutLap = true;
-                            if (pitOutEvent == null) {
+
+                if (currentState == TRACK_STATE.UNDETERMINED) {
+                    currentState = newState;
+                } else {
+                    switch (newState) {
+                        case TRACK_STATE.ON_TRACK:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                // put out event
+                                lapInfo.isOutLap = true;
+                                if (pitOutEvent == null) {
+                                    pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
+                                }
+                                pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
+                                await sheetController.insertPitOutEvent(pitOutEvent);
+                                pitOutEvent = null;
+                            }
+                            break;
+                        case TRACK_STATE.PIT_LANE:
+                            if (currentState == TRACK_STATE.ON_TRACK) {
+                                pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
+                                lapInfo.isInLap = true;
+                            } else {
+                                // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                             }
-                            pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
-                            await sheetController.insertPitOutEvent(pitOutEvent);
-                            pitOutEvent = null;
-                        }
-                        break;
-                    case TRACK_STATE.PIT_LANE:
-                        if (currentState == TRACK_STATE.ON_TRACK) {
-                            pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
-                            lapInfo.isInLap = true;
-                        } else {
-                            // pit box out event?
-                            pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                        }
 
-                        break;
-                    case TRACK_STATE.PIT_BOX:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            pitInEvent!.setInBox(unwrappedGraphics);
-                            await sheetController.insertPitInEvent(pitInEvent);
-                            pitInEvent = null;
-                        }
-                        break;
+                            break;
+                        case TRACK_STATE.PIT_BOX:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                pitInEvent!.setInBox(unwrappedGraphics);
+                                await sheetController.insertPitInEvent(pitInEvent);
+                                pitInEvent = null;
+                            }
+                            break;
+                    }
                 }
 
                 currentState = newState;
@@ -319,36 +330,41 @@ namespace ACCStatsUploader {
             TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
             if (newStateMaybe != null) {
                 TRACK_STATE newState = (TRACK_STATE)newStateMaybe;
-                switch (newState) {
-                    case TRACK_STATE.ON_TRACK:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            // put out event
-                            lapInfo.isOutLap = true;
-                            if (pitOutEvent == null) {
+
+                if (currentState == TRACK_STATE.UNDETERMINED) {
+                    currentState = newState;
+                } else {
+                    switch (newState) {
+                        case TRACK_STATE.ON_TRACK:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                // put out event
+                                lapInfo.isOutLap = true;
+                                if (pitOutEvent == null) {
+                                    pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
+                                }
+                                pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
+                                await sheetController.insertPitOutEvent(pitOutEvent);
+                                pitOutEvent = null;
+                            }
+                            break;
+                        case TRACK_STATE.PIT_LANE:
+                            if (currentState == TRACK_STATE.ON_TRACK) {
+                                pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
+                                lapInfo.isInLap = true;
+                            } else {
+                                // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                             }
-                            pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
-                            await sheetController.insertPitOutEvent(pitOutEvent);
-                            pitOutEvent = null;
-                        }
-                        break;
-                    case TRACK_STATE.PIT_LANE:
-                        if (currentState == TRACK_STATE.ON_TRACK) {
-                            pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
-                            lapInfo.isInLap = true;
-                        } else {
-                            // pit box out event?
-                            pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                        }
 
-                        break;
-                    case TRACK_STATE.PIT_BOX:
-                        if (currentState == TRACK_STATE.PIT_LANE) {
-                            pitInEvent!.setInBox(unwrappedGraphics);
-                            await sheetController.insertPitInEvent(pitInEvent);
-                            pitInEvent = null;
-                        }
-                        break;
+                            break;
+                        case TRACK_STATE.PIT_BOX:
+                            if (currentState == TRACK_STATE.PIT_LANE) {
+                                pitInEvent!.setInBox(unwrappedGraphics);
+                                await sheetController.insertPitInEvent(pitInEvent);
+                                pitInEvent = null;
+                            }
+                            break;
+                    }
                 }
 
                 currentState = newState;

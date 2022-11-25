@@ -1,0 +1,18 @@
+name: discord message
+on: 
+  release:
+    types: [released]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Discord notification
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.TEST_DISCORD_WEBHOOK }}
+      uses: Ilshidur/action-discord@master
+      with:
+        args: >
+          'Version {{ EVENT_PAYLOAD.release.name }} released!'
+          'Link: {{ EVENT_PAYLOAD.release.upload_url }}'

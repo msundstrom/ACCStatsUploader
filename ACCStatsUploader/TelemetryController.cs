@@ -358,9 +358,10 @@ namespace ACCStatsUploader {
                             if (currentState == TRACK_STATE.ON_TRACK) {
                                 pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
                                 lapInfo.isInLap = true;
-                            } else {
+                            } else if (currentState == TRACK_STATE.PIT_BOX) {
                                 // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
+                                pitOutEvent.setPitBoxOut(unwrappedGraphics);
                             }
 
                             break;

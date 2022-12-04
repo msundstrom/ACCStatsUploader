@@ -73,6 +73,8 @@ namespace ACCStatsUploader {
         public async Task insertPitInEvent(PitInEvent pitInEvent) {
             var pitEventRequest = gsController.createSheetRequest();
 
+            var tyreSet = pitInEvent.tyreSet == 0 ? "W" : pitInEvent.tyreSet.ToString();
+
             pitEventRequest.addRequest(this.appendRow(new Cells {
                 new Cell { value = pitInEvent.sessionType },
                 new Cell { value = pitInEvent.type },
@@ -84,7 +86,7 @@ namespace ACCStatsUploader {
                 new Cell { value = "" },
                 new Cell { value = pitInEvent.driverName },
                 new Cell { value = pitInEvent.driveTimeLeft },
-                new Cell { value = pitInEvent.tyreSet }
+                new Cell { value = tyreSet }
             }));
 
             await pitEventRequest.execute();
@@ -92,6 +94,8 @@ namespace ACCStatsUploader {
 
         public async Task insertPitOutEvent(PitOutEvent pitOutEvent) {
             var pitEventRequest = gsController.createSheetRequest();
+
+            var tyreSet = pitOutEvent.tyreSet == 0 ? "W" : pitOutEvent.tyreSet.ToString();
 
             pitEventRequest.addRequest(this.appendRow(new Cells {
                 new Cell { value = pitOutEvent.sessionType },
@@ -104,7 +108,7 @@ namespace ACCStatsUploader {
                 new Cell { value = pitOutEvent.pitBoxOutClockTime },
                 new Cell { value = pitOutEvent.driverName },
                 new Cell { value = "" },
-                new Cell { value = pitOutEvent.tyreSet },
+                new Cell { value = tyreSet },
                 new Cell { value = pitOutEvent.initialTyrePressures.fl },
                 new Cell { value = pitOutEvent.initialTyrePressures.fr },
                 new Cell { value = pitOutEvent.initialTyrePressures.rl },

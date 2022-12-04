@@ -49,34 +49,34 @@ namespace ACCStatsUploader {
         ACC_THUNDERSTORM = 5
     };
 
-    public enum PenaltyShortcut {
-        None,
-        DriveThrough_Cutting,
-        StopAndGo_10_Cutting,
-        StopAndGo_20_Cutting,
-        StopAndGo_30_Cutting,
-        Disqualified_Cutting,
-        RemoveBestLaptime_Cutting,
+    public enum ACC_PENALTY_TYPE {
+        None = 0,
+        DriveThrough_Cutting = 1,
+        StopAndGo_10_Cutting = 2,
+        StopAndGo_20_Cutting = 3,
+        StopAndGo_30_Cutting = 4,
+        Disqualified_Cutting = 5,
+        RemoveBestLaptime_Cutting = 6,
 
-        DriveThrough_PitSpeeding,
-        StopAndGo_10_PitSpeeding,
-        StopAndGo_20_PitSpeeding,
-        StopAndGo_30_PitSpeeding,
-        Disqualified_PitSpeeding,
-        RemoveBestLaptime_PitSpeeding,
+        DriveThrough_PitSpeeding = 7,
+        StopAndGo_10_PitSpeeding = 8,
+        StopAndGo_20_PitSpeeding = 9,
+        StopAndGo_30_PitSpeeding = 10,
+        Disqualified_PitSpeeding = 11,
+        RemoveBestLaptime_PitSpeeding = 12,
 
-        Disqualified_IgnoredMandatoryPit,
+        Disqualified_IgnoredMandatoryPit = 13,
 
-        PostRaceTime,
-        Disqualified_Trolling,
-        Disqualified_PitEntry,
-        Disqualified_PitExit,
-        Disqualified_WrongWay,
+        PostRaceTime = 14,
+        Disqualified_Trolling = 15,
+        Disqualified_PitEntry = 16,
+        Disqualified_PitExit = 17,
+        Disqualified_WrongWay = 18,
 
-        DriveThrough_IgnoredDriverStint,
-        Disqualified_IgnoredDriverStint,
+        DriveThrough_IgnoredDriverStint = 19,
+        Disqualified_IgnoredDriverStint = 20,
 
-        Disqualified_ExceededDriverStintLimit,
+        Disqualified_ExceededDriverStintLimit = 21,
     };
 
     public class GraphicsEventArgs : EventArgs {
@@ -126,7 +126,7 @@ namespace ACCStatsUploader {
         public int playerCarID;
         public float penaltyTime;
         public ACC_FLAG_TYPE flag;
-        public int penalty;
+        public ACC_PENALTY_TYPE penalty;
         public int idealLineOn;
         public int isInPitLane;
         public float surfaceGrip;

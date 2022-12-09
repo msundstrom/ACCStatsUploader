@@ -16,7 +16,6 @@ namespace ACCStatsUploader {
 
         public PitOutEvent(Graphics graphicsInfo, Physics physicsInfo) {
             sessionType = SessionTypeConverter.toString(graphicsInfo.session);
-            pitBoxOutClockTime = graphicsInfo.Clock;
             tyreSet = graphicsInfo.currentTyreSet;
 
             initialTyrePressures = new Wheels(
@@ -25,6 +24,10 @@ namespace ACCStatsUploader {
                 physicsInfo.wheelsPressure[2],
                 physicsInfo.wheelsPressure[3]
             );
+        }
+
+        public void setPitBoxOut(Graphics graphicsInfo) {
+            pitBoxOutClockTime = graphicsInfo.Clock;
         }
 
         public void setPitOut(Graphics graphicsInfo, StaticInfo staticInfo) {

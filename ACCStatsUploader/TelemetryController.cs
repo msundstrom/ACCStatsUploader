@@ -339,6 +339,13 @@ namespace ACCStatsUploader {
                             if (currentState == TRACK_STATE.PIT_LANE) {
                                 // put out event
                                 lapInfo.isOutLap = true;
+
+                                // if we just drove through the pit lane
+                                if (pitInEvent != null) {
+                                    await sheetController.insertPitInEvent(pitInEvent);
+                                    pitInEvent = null;
+                                }
+
                                 if (pitOutEvent == null) {
                                     pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
                                 }
@@ -351,9 +358,10 @@ namespace ACCStatsUploader {
                             if (currentState == TRACK_STATE.ON_TRACK) {
                                 pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
                                 lapInfo.isInLap = true;
-                            } else {
+                            } else if (currentState == TRACK_STATE.PIT_BOX) {
                                 // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
+                                pitOutEvent.setPitBoxOut(unwrappedGraphics);
                             }
 
                             break;

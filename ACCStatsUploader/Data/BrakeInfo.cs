@@ -16,10 +16,14 @@ namespace ACCStatsUploader {
             brakePads.rl = physics.padLife[2];
             brakePads.rr = physics.padLife[3];
 
-            brakePads.fl = physics.brakeTemp[0];
-            brakePads.fr = physics.brakeTemp[1];
-            brakePads.rl = physics.brakeTemp[2];
-            brakePads.rr = physics.brakeTemp[3];
+            brakeTemperatures.Add(
+                new Wheels(
+                physics.brakeTemp[0],
+                physics.brakeTemp[1],
+                physics.brakeTemp[2],
+                physics.brakeTemp[3]
+                )
+            );
         }
         public Wheels maxTemps() {
             double flMax = brakeTemperatures.Select(wheel => wheel.fl).ToArray().Max();

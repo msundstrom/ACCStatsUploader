@@ -5,7 +5,7 @@
         public double rl;
         public double rr;
 
-        public Wheels(double frontRight, double frontLeft, double rearLeft, double rearRight) {
+        public Wheels(double frontLeft, double frontRight, double rearLeft, double rearRight) {
             fr = frontRight;
             fl = frontLeft;
             rl = rearLeft;

@@ -12,15 +12,15 @@
         
 
         public void endLap(Physics physics) {
-            carDamage.front = physics.carDamage[0];
-            carDamage.rear = physics.carDamage[1];
-            carDamage.left = physics.carDamage[2];
-            carDamage.right = physics.carDamage[3];
+            carDamage.front = physics.carDamage[0] / 3.5f;
+            carDamage.rear = physics.carDamage[1] / 3.5f;
+            carDamage.left = physics.carDamage[2] / 3.5f;
+            carDamage.right = physics.carDamage[3] / 3.5f;
 
-            suspensionDamage.front = physics.suspensionDamage[0];
-            suspensionDamage.rear = physics.suspensionDamage[1];
-            suspensionDamage.left = physics.suspensionDamage[2];
-            suspensionDamage.right = physics.suspensionDamage[3];
+            suspensionDamage.front = physics.suspensionDamage[0] / 3.5f;
+            suspensionDamage.rear = physics.suspensionDamage[1] / 3.5f;
+            suspensionDamage.left = physics.suspensionDamage[2] / 3.5f;
+            suspensionDamage.right = physics.suspensionDamage[3] / 3.5f;
         }
     }
 }

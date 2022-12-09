@@ -379,7 +379,12 @@ namespace ACCStatsUploader {
                     unwrappedStaticInfo
                 );
                 System.Diagnostics.Debug.WriteLine("Sending update (" + unwrappedGraphics.packetId + ")...");
-                await sheetController.insertLapInfo(lapInfo);
+
+                // Ugly hack to fix the "phantom laps" issue when driver swapping
+                if (lapInfo.timingInfo.sectorTimes.FindAll(sector => sector == -1).Count == 0) {
+                    await sheetController.insertLapInfo(lapInfo);
+                }
+
                 System.Diagnostics.Debug.WriteLine("Sent update (" + unwrappedGraphics.packetId + ")!");
                 lapInfo = new LapInfo(
                     unwrappedGraphics,

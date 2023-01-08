@@ -30,6 +30,7 @@
     <PackageReference Include="Google.Apis" Version="1.47.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.47.0" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.47.0.2007" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,6 +13,9 @@ namespace ACCStatsUploader.GoogleAPI {
     using ICells = IList<Cell>;
     using Cells = List<Cell>;
 
+    using ICellMatrix = IList<IList<Cell>>;
+    using CellMatrix = List<List<Cell>>;
+
     public enum Dimension {
         ROWS,
         COLUMNS
@@ -152,6 +155,37 @@ namespace ACCStatsUploader.GoogleAPI {
         ) {
             return new UpdateCellsRequest() {
                 Rows = new[] { createRowData(rowData) },
+                Range = new GridRange() {
+                    SheetId = sheetId,
+                    StartColumnIndex = range.startCol,
+                    EndColumnIndex = range.endCol,
+                    StartRowIndex = range.startRow,
+                    EndRowIndex = range.endRow,
+                },
+                Fields = fields ?? "*"
+            }.asRequest();
+        }
+
+        /// <summary>
+        /// Updates cells for a matrix of cells
+        /// </summary>
+        /// <param name="sheetId">The sheet ID to update data in</param>
+        /// <param name="rowData">The list of row data to write</param>
+        /// <param name="range">The range in which to write data</param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public Request updateCells(
+            int sheetId,
+            CellMatrix rowData,
+            CellRange range,
+            string? fields = null
+        ) {
+            var rows = rowData.Select(rowOfCells => {
+                return createRowData(rowOfCells);
+            }).ToList();
+
+            return new UpdateCellsRequest() {
+                Rows = rows,
                 Range = new GridRange() {
                     SheetId = sheetId,
                     StartColumnIndex = range.startCol,

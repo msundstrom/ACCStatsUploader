@@ -19,13 +19,13 @@ namespace ACCStatsUploader {
     public class SheetsAPIController {
         string[] Scopes = { SheetsService.Scope.Spreadsheets };
         SheetsService sheetService;
-        String documentId = "";
+        string documentId = "";
 
         public bool isConnected = false;
 
         private string asf = "replace_me";
 
-        private GoogleAPI.BaseRequestFactory requestFactory = new GoogleAPI.BaseRequestFactory();
+        private BaseRequestFactory requestFactory = new BaseRequestFactory();
 
         public static Stream GenerateStreamFromString(string s) {
             var stream = new MemoryStream();
@@ -37,8 +37,8 @@ namespace ACCStatsUploader {
         }
 
         public async void initializeGoogleApi(
-            String applicationName,
-            String documentId
+            string applicationName,
+            string documentId
         ) {
             this.documentId = documentId;
             UserCredential credential;
@@ -68,7 +68,7 @@ namespace ACCStatsUploader {
                 CancellationToken.None,
                 new FileDataStore(credPath, true)).Result;
 
-            this.sheetService = new SheetsService(new BaseClientService.Initializer() {
+            sheetService = new SheetsService(new BaseClientService.Initializer() {
                 HttpClientInitializer = credential,
                 ApplicationName = applicationName,
             });
@@ -94,7 +94,7 @@ namespace ACCStatsUploader {
                 var sheetId = result.Replies[0].AddSheet.Properties.SheetId;
 
                 return sheetId;
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
                 if (e is Google.GoogleApiException) {
@@ -126,7 +126,7 @@ namespace ACCStatsUploader {
 
             try {
                 await updateRequest.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
@@ -160,7 +160,7 @@ namespace ACCStatsUploader {
 
             try {
                 await batchUpdateRequest.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
@@ -177,7 +177,7 @@ namespace ACCStatsUploader {
 
             try {
                 await request.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
@@ -194,7 +194,7 @@ namespace ACCStatsUploader {
 
             try {
                 await request.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
@@ -219,7 +219,7 @@ namespace ACCStatsUploader {
 
             try {
                 await batchUpdateRequest.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
@@ -228,8 +228,8 @@ namespace ACCStatsUploader {
         public async Task clearSheet(int sheetId) {
             var request = buildBatchRequest(new List<Request> {
                 requestFactory.deleteDimension(
-                    sheetId, 
-                    Dimension.ROWS, 
+                    sheetId,
+                    Dimension.ROWS,
                     1
                 ).asRequest(),
                 requestFactory.deleteDimension(
@@ -241,13 +241,13 @@ namespace ACCStatsUploader {
 
             try {
                 await request.ExecuteAsync();
-            } catch (System.Exception e) {
+            } catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.GetType());
             }
         }
 
-        
+
 
         private AppendCellsRequest createAppendRowRequest(int sheetId, IList<object> rowData, TextFormat? format = null) {
             AppendCellsRequest appendCellsRequest = new AppendCellsRequest();
@@ -286,7 +286,7 @@ namespace ACCStatsUploader {
 
         private PasteDataRequest createPasteDataRequest(int sheetId, IList<object> rowData, int column, int row) {
             return new PasteDataRequest() {
-                Data = String.Join(";", rowData.ToArray()),
+                Data = string.Join(";", rowData.ToArray()),
                 Type = "PASTE_VALUES",
                 Delimiter = ";",
                 Coordinate = new GridCoordinate() {
@@ -364,7 +364,7 @@ namespace ACCStatsUploader {
         private SpreadsheetsResource.BatchUpdateRequest buildBatchRequest(IList<Request> requests) {
             BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
             batchUpdateSpreadsheetRequest.Requests = requests;
-            var batchUpdateRequest = this.sheetService.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, this.documentId);
+            var batchUpdateRequest = sheetService.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, documentId);
 
             return batchUpdateRequest;
         }

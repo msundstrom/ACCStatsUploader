@@ -14,6 +14,8 @@ namespace ACCStatsUploader {
     using RequestList = List<Request>;
     using ICells = IList<Cell>;
     using Cells = List<Cell>;
+    using ICellMatrix = IList<IList<Cell>>;
+    using CellMatrix = List<List<Cell>>;
 
     public static class SheetExtensions {
 
@@ -64,6 +66,11 @@ namespace ACCStatsUploader {
         }
 
         public static Request updateCells(this Sheet sheet, CellRange range, ICells cells, string? fields = null) {
+            var baseFactory = new BaseRequestFactory();
+            return baseFactory.updateCells(sheet.sheetId, cells, range, fields);
+        }
+
+        public static Request updateCells(this Sheet sheet, CellRange range, CellMatrix cells, string? fields = null) {
             var baseFactory = new BaseRequestFactory();
             return baseFactory.updateCells(sheet.sheetId, cells, range, fields);
         }

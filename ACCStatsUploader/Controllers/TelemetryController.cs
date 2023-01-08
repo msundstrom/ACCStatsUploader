@@ -19,6 +19,8 @@ namespace ACCStatsUploader {
         private float lastSessionTime = -1;
         private int lastPacketId = -1;
 
+        private TyreSetController tyreSetController = new TyreSetController();
+
         enum TRACK_STATE {
             ON_TRACK,
             PIT_LANE,
@@ -30,6 +32,9 @@ namespace ACCStatsUploader {
 
         public TelemetryController(SheetController sheetController) {
             this.sheetController = sheetController;
+
+            // Should happen at race start, probably
+            tyreSetController.start(this.sheetController.tyreSetsSheet);
         }
 
         public void newPhysics(Physics physicsUpdate) {
@@ -438,6 +443,8 @@ namespace ACCStatsUploader {
 
                 clockManager.update(unwrappedGraphics);
             }
+
+            tyreSetController.update(unwrappedGraphics, unwrappedPhysics, unwrappedStaticInfo);
         }
 
         private TRACK_STATE? checkStateUpdate(Graphics graphicsUpdate) {

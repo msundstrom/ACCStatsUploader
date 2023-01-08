@@ -1,4 +1,5 @@
-﻿using ACCStatsUploader.GoogleAPI;
+﻿using ACCStatsUploader;
+using ACCStatsUploader.GoogleAPI;
 using Google.Apis.Sheets.v4.Data;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace ACCStatsUploader {
         public StintOverviewSheet stintOverviewSheet;
         public StintMatrixSheet stintMatrixSheet;
         public DriverOverviewSheet driverOverviewSheet;
+        public TyreSetsSheet tyreSetsSheet;
 
         private SheetsAPIController gsController;
 
@@ -42,6 +44,8 @@ namespace ACCStatsUploader {
                     stintMatrixSheet = new StintMatrixSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
                 } else if (sheet.Properties.Title == SHEET_NAMES.DRIVER_OVERVIEW) {
                     driverOverviewSheet = new DriverOverviewSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
+                } else if (sheet.Properties.Title == SHEET_NAMES.TYRE_SETS) {
+                    tyreSetsSheet = new TyreSetsSheet(gsController) { sheetId = (int)sheet.Properties.SheetId };
                 }
             }
 
@@ -80,16 +84,21 @@ namespace ACCStatsUploader {
                 await driverOverviewSheet.create();
             }
 
+            if (tyreSetsSheet == null) {
+                tyreSetsSheet = new TyreSetsSheet(gsController);
+                await tyreSetsSheet.create();
+            }
+
             return true;
         }
 
         private async Task<int?> createSheet(Sheet sheet) {
-            var weatherSheetId = await gsController.createSheet(sheet);
-            if (weatherSheetId == null) {
+            var newSheetId = await gsController.createSheet(sheet);
+            if (newSheetId == null) {
                 MessageBox.Show("Creating " + sheet.sheetTitle + " failed!");
             }
 
-            return weatherSheetId;
+            return newSheetId;
         }
 
         public async Task insertLapInfo(LapInfo lapInfo) {

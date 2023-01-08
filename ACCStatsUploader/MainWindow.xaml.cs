@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ACCStatsUploader;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,9 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace ACCStatsUploader {
-    
-
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>

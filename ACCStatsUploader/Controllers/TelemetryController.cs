@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Threading.Tasks;
 
 namespace ACCStatsUploader {
@@ -73,144 +74,47 @@ namespace ACCStatsUploader {
 
             lastPacketId = unwrappedPhysics.packetId;
 
-            switch (unwrappedGraphics.session) {
-                case ACC_SESSION_TYPE.ACC_PRACTICE:
-                    await parsePractice(unwrappedGraphics, unwrappedPhysics, unwrappedStaticInfo);
-                    break;
-                case ACC_SESSION_TYPE.ACC_QUALIFY:
-                    await parseQualifying(unwrappedGraphics, unwrappedPhysics, unwrappedStaticInfo);
-                    break;
-                case ACC_SESSION_TYPE.ACC_RACE:
-                    await parseRace(unwrappedGraphics, unwrappedPhysics, unwrappedStaticInfo);
-                    return;
-                case ACC_SESSION_TYPE.ACC_UNKNOWN:
-                case ACC_SESSION_TYPE.ACC_HOTLAP:
-                case ACC_SESSION_TYPE.ACC_TIME_ATTACK:
-                case ACC_SESSION_TYPE.ACC_DRIFT:
-                case ACC_SESSION_TYPE.ACC_DRAG:
-                    return;
+            if (
+                unwrappedGraphics.session == ACC_SESSION_TYPE.ACC_PRACTICE || 
+                unwrappedGraphics.session == ACC_SESSION_TYPE.ACC_QUALIFY || 
+                unwrappedGraphics.session == ACC_SESSION_TYPE.ACC_RACE
+            ) {
+                await parse(
+                    unwrappedGraphics.session,
+                    unwrappedGraphics,
+                    unwrappedPhysics,
+                    unwrappedStaticInfo
+                );
             }
         }
 
-        public async Task parsePractice(Graphics unwrappedGraphics, Physics unwrappedPhysics, StaticInfo unwrappedStaticInfo) {
+        private async Task parse(
+            ACC_SESSION_TYPE sessionType, 
+            Graphics unwrappedGraphics, 
+            Physics unwrappedPhysics, 
+            StaticInfo unwrappedStaticInfo
+        ) {
+            if (sessionType == ACC_SESSION_TYPE.ACC_RACE) {
+                if (lastSessionTime == -1) {
+                    lastSessionTime = unwrappedGraphics.sessionTimeLeft;
+                }
 
-            if (lapInfo is null) {
-                lapInfo = new LapInfo(
-                   unwrappedGraphics,
-                   unwrappedPhysics,
-                   unwrappedStaticInfo
-               );
-            }   
+                if (lapInfo is null && unwrappedGraphics.sessionTimeLeft == lastSessionTime) {
+                    lastSessionTime = unwrappedGraphics.sessionTimeLeft;
+                    return;
+                }
+
+                if (lapInfo is null && currentState == TRACK_STATE.ON_TRACK) {
+                    System.Diagnostics.Debug.WriteLine("Race started!");
+                    lapInfo = new LapInfo(
+                        unwrappedGraphics,
+                        unwrappedPhysics,
+                        unwrappedStaticInfo
+                    );
+                    lapInfo.timingInfo.isFirstLap = true;
+                }
+            }
             
-            TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
-            if (newStateMaybe != null) {
-                TRACK_STATE newState = (TRACK_STATE)newStateMaybe;
-
-                if (currentState == TRACK_STATE.UNDETERMINED) {
-                    currentState = newState;
-                } else {
-                    switch (newState) {
-                        case TRACK_STATE.ON_TRACK:
-                            if (currentState == TRACK_STATE.PIT_LANE) {
-                                // put out event
-                                lapInfo.isOutLap = true;
-                                if (pitOutEvent == null) {
-                                    pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                                }
-                                pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
-                                await sheetController.insertPitOutEvent(pitOutEvent);
-                                pitOutEvent = null;
-                            }
-                            break;
-                        case TRACK_STATE.PIT_LANE:
-                            if (currentState == TRACK_STATE.ON_TRACK) {
-                                pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
-                                lapInfo.isInLap = true;
-                            } else {
-                                // pit box out event?
-                                pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                            }
-
-                            break;
-                        case TRACK_STATE.PIT_BOX:
-                            if (currentState == TRACK_STATE.PIT_LANE) {
-                                pitInEvent!.setInBox(unwrappedGraphics);
-                                await sheetController.insertPitInEvent(pitInEvent);
-                                pitInEvent = null;
-                            }
-                            break;
-                    }
-                }
-
-                currentState = newState;
-            }
-
-            // check if new lap
-            // comparing the currently stored lap number vs the one given in last update
-            if (lapInfo.lapNumber < unwrappedGraphics.completedLaps + 1) {
-                lapInfo.endLap(
-                    unwrappedGraphics,
-                    unwrappedPhysics,
-                    unwrappedStaticInfo
-                );
-                System.Diagnostics.Debug.WriteLine("Sending update (" + unwrappedGraphics.packetId + ")...");
-                await sheetController.insertLapInfo(lapInfo);
-                System.Diagnostics.Debug.WriteLine("Sent update (" + unwrappedGraphics.packetId + ")!");
-                lapInfo = new LapInfo(
-                    unwrappedGraphics,
-                    unwrappedPhysics,
-                    unwrappedStaticInfo
-                );
-            } else {
-                lapInfo.update(unwrappedPhysics);
-                lapInfo.update(unwrappedGraphics);
-            }
-
-            // WEATHER UPDATE
-            var oldTime = clockManager.currentTime;
-            var newTime = new Time(unwrappedGraphics.Clock);
-
-            if (oldTime < newTime) {
-                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = new Time(unwrappedGraphics.Clock),
-                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
-                    airTemp = unwrappedPhysics.airTemp,
-                    trackTemp = unwrappedPhysics.roadTemp,
-                    windSpeed = unwrappedGraphics.windSpeed,
-                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
-                });
-
-                clockManager.update(unwrappedGraphics);
-            } else if ( // going past midnight... should work?
-                (oldTime.hours == 23 && oldTime.minutes == 59) &&
-                (newTime.hours == 00 && newTime.minutes == 00)
-            ) {
-                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = new Time(unwrappedGraphics.Clock),
-                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
-                    airTemp = unwrappedPhysics.airTemp,
-                    trackTemp = unwrappedPhysics.roadTemp,
-                    windSpeed = unwrappedGraphics.windSpeed,
-                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
-                });
-
-                clockManager.update(unwrappedGraphics);
-            }
-        }
-
-        public async Task parseQualifying(Graphics unwrappedGraphics, Physics unwrappedPhysics, StaticInfo unwrappedStaticInfo) {
-
-            if (lapInfo is null) {
-                lapInfo = new LapInfo(
-                   unwrappedGraphics,
-                   unwrappedPhysics,
-                   unwrappedStaticInfo
-               );
-            }
 
             TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
             if (newStateMaybe != null) {
@@ -222,127 +126,14 @@ namespace ACCStatsUploader {
                     switch (newState) {
                         case TRACK_STATE.ON_TRACK:
                             if (currentState == TRACK_STATE.PIT_LANE) {
-                                // put out event
-                                lapInfo.isOutLap = true;
-                                if (pitOutEvent == null) {
-                                    pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                                }
-                                pitOutEvent.setPitOut(unwrappedGraphics, unwrappedStaticInfo);
-                                await sheetController.insertPitOutEvent(pitOutEvent);
-                                pitOutEvent = null;
-                            }
-                            break;
-                        case TRACK_STATE.PIT_LANE:
-                            if (currentState == TRACK_STATE.ON_TRACK) {
-                                pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
-                                lapInfo.isInLap = true;
-                            } else {
-                                // pit box out event?
-                                pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
-                            }
+                                // start a new lap
+                                lapInfo = new LapInfo(
+                                    unwrappedGraphics,
+                                    unwrappedPhysics,
+                                    unwrappedStaticInfo
+                                );
 
-                            break;
-                        case TRACK_STATE.PIT_BOX:
-                            if (currentState == TRACK_STATE.PIT_LANE) {
-                                pitInEvent!.setInBox(unwrappedGraphics);
-                                await sheetController.insertPitInEvent(pitInEvent);
-                                pitInEvent = null;
-                            }
-                            break;
-                    }
-                }
-
-                currentState = newState;
-            }
-
-            // check if new lap
-            // comparing the currently stored lap number vs the one given in last update
-            if (lapInfo.lapNumber < unwrappedGraphics.completedLaps + 1) {
-                lapInfo.endLap(
-                    unwrappedGraphics,
-                    unwrappedPhysics,
-                    unwrappedStaticInfo
-                );
-                System.Diagnostics.Debug.WriteLine("Sending update (" + unwrappedGraphics.packetId + ")...");
-                await sheetController.insertLapInfo(lapInfo);
-                System.Diagnostics.Debug.WriteLine("Sent update (" + unwrappedGraphics.packetId + ")!");
-                lapInfo = new LapInfo(
-                    unwrappedGraphics,
-                    unwrappedPhysics,
-                    unwrappedStaticInfo
-                );
-            } else {
-                lapInfo.update(unwrappedPhysics);
-                lapInfo.update(unwrappedGraphics);
-            }
-
-            // WEATHER UPDATE
-            var oldTime = clockManager.currentTime;
-            var newTime = new Time(unwrappedGraphics.Clock);
-
-            if (oldTime < newTime) {
-                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = new Time(unwrappedGraphics.Clock),
-                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
-                    airTemp = unwrappedPhysics.airTemp,
-                    trackTemp = unwrappedPhysics.roadTemp,
-                    windSpeed = unwrappedGraphics.windSpeed,
-                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
-                });
-
-                clockManager.update(unwrappedGraphics);
-            } else if ( // going past midnight... should work?
-                (oldTime.hours == 23 && oldTime.minutes == 59) &&
-                (newTime.hours == 00 && newTime.minutes == 00)
-            ) {
-                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
-                    inGameClock = new Time(unwrappedGraphics.Clock),
-                    currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
-                    airTemp = unwrappedPhysics.airTemp,
-                    trackTemp = unwrappedPhysics.roadTemp,
-                    windSpeed = unwrappedGraphics.windSpeed,
-                    tenMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn10min,
-                    thirtyMinuteForecastValue = (int)unwrappedGraphics.rainIntensityIn30min,
-                    trackStateValue = (int)unwrappedGraphics.trackGripStatus
-                });
-
-                clockManager.update(unwrappedGraphics);
-            }
-        }
-
-        public async Task parseRace(Graphics unwrappedGraphics, Physics unwrappedPhysics, StaticInfo unwrappedStaticInfo) {
-            if (lastSessionTime == -1) {
-                lastSessionTime = unwrappedGraphics.sessionTimeLeft;
-            }
-
-            if (lapInfo is null && unwrappedGraphics.sessionTimeLeft == lastSessionTime) {
-                lastSessionTime = unwrappedGraphics.sessionTimeLeft;
-                return;
-            }
-
-            if (lapInfo is null) {
-                System.Diagnostics.Debug.WriteLine("Race started!");
-                lapInfo = new LapInfo(
-                    unwrappedGraphics,
-                    unwrappedPhysics,
-                    unwrappedStaticInfo
-                );
-                lapInfo.timingInfo.isFirstLap = true;
-            }
-
-            TRACK_STATE? newStateMaybe = checkStateUpdate(unwrappedGraphics);
-            if (newStateMaybe != null) {
-                TRACK_STATE newState = (TRACK_STATE)newStateMaybe;
-
-                if (currentState == TRACK_STATE.UNDETERMINED) {
-                    currentState = newState;
-                } else {
-                    switch (newState) {
-                        case TRACK_STATE.ON_TRACK:
-                            if (currentState == TRACK_STATE.PIT_LANE) {
-                                // put out event
+                                // pit out event
                                 lapInfo.isOutLap = true;
 
                                 // if we just drove through the pit lane
@@ -363,6 +154,15 @@ namespace ACCStatsUploader {
                             if (currentState == TRACK_STATE.ON_TRACK) {
                                 pitInEvent = new PitInEvent(unwrappedGraphics, unwrappedStaticInfo);
                                 lapInfo.isInLap = true;
+
+                                lapInfo.endLap(
+                                    unwrappedGraphics,
+                                    unwrappedPhysics,
+                                    unwrappedStaticInfo
+                                );
+
+                                await sheetController.insertLapInfo(lapInfo);
+
                             } else if (currentState == TRACK_STATE.PIT_BOX) {
                                 // pit box out event?
                                 pitOutEvent = new PitOutEvent(unwrappedGraphics, unwrappedPhysics);
@@ -385,9 +185,14 @@ namespace ACCStatsUploader {
 
             // check if new lap
             // comparing the currently stored lap number vs the one given in last update
-            if (lapInfo.lapNumber < unwrappedGraphics.completedLaps + 1) {
+            // when on an inlap this needs to happen at the _pit entry_ instead!
+            if (
+                lapInfo != null &&
+                lapInfo.lapNumber < unwrappedGraphics.completedLaps + 1 && 
+                currentState == TRACK_STATE.ON_TRACK
+            ) {
                 lapInfo.endLap(
-                    unwrappedGraphics, 
+                    unwrappedGraphics,
                     unwrappedPhysics,
                     unwrappedStaticInfo
                 );
@@ -404,7 +209,9 @@ namespace ACCStatsUploader {
                     unwrappedPhysics,
                     unwrappedStaticInfo
                 );
-            } else {
+            } else if (
+                lapInfo != null && 
+                currentState == TRACK_STATE.ON_TRACK) {
                 lapInfo.update(unwrappedPhysics);
                 lapInfo.update(unwrappedGraphics);
             }
@@ -414,7 +221,7 @@ namespace ACCStatsUploader {
             var newTime = new Time(unwrappedGraphics.Clock);
 
             if (oldTime < newTime) {
-               await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
+                await sheetController.insertWeatherEvent(new WeatherUpdateEvent {
                     inGameClock = new Time(unwrappedGraphics.Clock),
                     currentWeatherValue = (int)unwrappedGraphics.rainIntensity,
                     airTemp = unwrappedPhysics.airTemp,

@@ -8,6 +8,7 @@ namespace ACCStatsUploader {
 
     public static class SHEET_NAMES {
         public static String LAP = "lap_data";
+        public static String TYRE_SETS = "tyre_set_data";
         public static String PITSTOP = "pit_stop_data";
         public static String WEATHER = "weather_data";
         public static String FORECAST = "Weather forecast";

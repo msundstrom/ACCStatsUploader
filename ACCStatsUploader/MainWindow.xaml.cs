@@ -50,6 +50,8 @@ namespace ACCStatsUploader {
             this.DataContext = this;
 
             googleSheetUrl = "";
+
+            this.VersionNumber.Content = BuildInfo.versionNumber;
         }
 
         public async void ToggleGSConnectionButton_click(object sender, EventArgs e) {

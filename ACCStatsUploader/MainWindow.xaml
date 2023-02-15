@@ -16,6 +16,7 @@
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <Label Content="Google Sheet document URL" HorizontalAlignment="Left" VerticalAlignment="Top" Width="320" Height="26" Grid.Row="0" Margin="4,5,0,0" Grid.Column="1"/>
+        <Label Content="Stopped" HorizontalAlignment="Right" VerticalAlignment="Top" Name="VersionNumber" Grid.Row="0" Height="26" Width="86" FontWeight="DemiBold" Grid.Column="1" Margin="10,5,0,0" HorizontalContentAlignment="Right"/>
         <TextBox TextWrapping="Wrap" VerticalAlignment="Top" Name="GoogleSheetIDTextBox" Text="{Binding Mode=TwoWay, Path=googleSheetUrl}" TextChanged="test" Height="65" Grid.Column="1" Margin="4,31,5,0" />
         <Label Content="Disconnected" HorizontalAlignment="Left" VerticalAlignment="Bottom" Name="GSStateText" Grid.Row="0" Height="26" Width="86" Margin="5,0,0,4" FontWeight="DemiBold" Grid.Column="1" RenderTransformOrigin="0.635,0.489"/>
         <Button Content="Connect" VerticalAlignment="Bottom" Height="30" ClickMode="Press" Click="ToggleGSConnectionButton_click" Name="ConnectToGSButton" Grid.Row="0" Margin="243,0,5,4" Grid.Column="1" />
@@ -25,6 +26,5 @@
             Assetto Corsa shared memory reader
         </TextBlock>
         <Button Content="Start" VerticalAlignment="Center" Height="30" ClickMode="Press" Click="ToggleSharedMemoryReader" Name="SharedMemoryToggleButton" Grid.Row="1" Margin="234,0,5,0" Grid.Column="1" />
-
     </Grid>
 </Window>

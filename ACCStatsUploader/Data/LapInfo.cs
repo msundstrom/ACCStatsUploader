@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ACCStatsUploader.Converters;
+using ACCStatsUploader.Data;
+using System;
 using System.Collections.Generic;
 
 namespace ACCStatsUploader {
@@ -35,13 +37,17 @@ namespace ACCStatsUploader {
         public string sessionType;
         public float airTemp;
         public float trackTemp;
+        public string carModel;
 
         public DamageInfo damageInfo = new DamageInfo();
         public BrakeInfo brakeInfo = new BrakeInfo();
+        public ElectronicsInfo electronicsInfo;
 
         private PitstopInfo? ongoingPitstop = null;
 
         public LapInfo(Graphics initialGraphicsData, Physics initialPhysicsData, StaticInfo initialStaticInfo) {
+            this.carModel = initialStaticInfo.CarModel;
+            this.electronicsInfo = new ElectronicsInfo(carModel);
             this.lapTime = 0;
             this.lapNumber = initialGraphicsData.completedLaps + 1;
 
@@ -77,6 +83,7 @@ namespace ACCStatsUploader {
         public void update(Physics physicsUpdate) {
             tyreInfo.update(physicsUpdate);
             brakeInfo.update(physicsUpdate);
+            electronicsInfo.update(physicsUpdate);
         }
 
         public void update(Graphics graphicsUpdate) {
@@ -93,6 +100,7 @@ namespace ACCStatsUploader {
             }
 
             timingInfo.update(graphicsUpdate);
+            electronicsInfo.update(graphicsUpdate);
         }
 
         public void endLap(Graphics graphicsUpdate, Physics physicsUpdate, StaticInfo staticInfo) {
@@ -109,6 +117,7 @@ namespace ACCStatsUploader {
             fuelInfo.endLap(physicsUpdate);
             brakeInfo.endLap(physicsUpdate);
             damageInfo.endLap(physicsUpdate);
+            electronicsInfo.endLap(graphicsUpdate, physicsUpdate);
         }
     }
 }

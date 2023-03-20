@@ -1,0 +1,103 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static ACCStatsUploader.Converters.CarModel;
+
+namespace ACCStatsUploader.Converters {
+    
+public class CarModel {
+        public enum KUNOS_ID {
+            AMR_V12_VANTAGE_GT3,
+            AUDI_R8_LMS,
+            BENTLEY_CONTINENTAL_GT3_2016,
+            BENTLEY_CONTINENTAL_GT3_2018,
+            BMW_M6_GT3,
+            JAGUAR_G3,
+            FERRARI_488_GT3,
+            HONDA_NSX_GT3,
+            LAMBORGHINI_GALLARDO_REX,
+            LAMBORGHINI_HURACAN_GT3,
+            LAMBORGHINI_HURACAN_ST,
+            LEXUS_RC_F_GT3,
+            MCLAREN_650S_GT3,
+            MERCEDES_AMG_GT3,
+            NISSAN_GT_R_GT3_2017,
+            NISSAN_GT_R_GT3_2018,
+            PORSCHE_991_GT3_R,
+            PORSCHE_991II_GT3_CUP,
+            AMR_V8_VANTAGE_GT3,
+            AUDI_R8_LMS_EVO,
+            HONDA_NSX_GT3_EVO,
+            LAMBORGHINI_HURACAN_GT3_EVO,
+            MCLAREN_720S_GT3,
+            PORSCHE_991II_GT3_R,
+            ALPINE_A110_GT4,
+            AMR_V8_VANTAGE_GT4,
+            AUDI_R8_GT4,
+            BMW_M4_GT4,
+            CHEVROLET_CAMARO_GT4R,
+            GINETTA_G55_GT4,
+            KTM_XBOW_GT4,
+            MASERATI_MC_GT4,
+            MCLAREN_570S_GT4,
+            MERCEDES_AMG_GT4,
+            PORSCHE_718_CAYMAN_GT4_MR,
+            FERRARI_488_GT3_EVO,
+            MERCEDES_AMG_GT3_EVO,
+            BMW_M4_GT3,
+            AUDI_R8_LMS_EVO_II,
+            BMW_M2_CS_RACING,
+            FERRARI_488_CHALLENGE_EVO,
+            LAMBORGHINI_HURACAN_ST_EVO2,
+            PORSCHE_992_GT3_CUP
+        }
+
+        public static Dictionary<string, KUNOS_ID> carModelID = new Dictionary<string, KUNOS_ID> {
+            {"alpine_a110_gt4",KUNOS_ID.ALPINE_A110_GT4},
+            {"amr_v12_vantage_gt3",KUNOS_ID.AMR_V12_VANTAGE_GT3},
+            {"amr_v8_vantage_gt3",KUNOS_ID.AMR_V8_VANTAGE_GT3},
+            {"amr_v8_vantage_gt4",KUNOS_ID.AMR_V8_VANTAGE_GT4},
+            {"audi_r8_gt4",KUNOS_ID.AUDI_R8_GT4},
+            {"audi_r8_lms",KUNOS_ID.AUDI_R8_LMS},
+            {"audi_r8_lms_evo",KUNOS_ID.AUDI_R8_LMS_EVO},
+            {"audi_r8_lms_evo_ii",KUNOS_ID.AUDI_R8_LMS_EVO_II},
+            {"bentley_continental_gt3_2016",KUNOS_ID.BENTLEY_CONTINENTAL_GT3_2016},
+            {"bentley_continental_gt3_2018",KUNOS_ID.BENTLEY_CONTINENTAL_GT3_2018},
+            {"bmw_m2_cs_racing",KUNOS_ID.BMW_M2_CS_RACING},
+            {"bmw_m4_gt3",KUNOS_ID.BMW_M4_GT3},
+            {"bmw_m4_gt4",KUNOS_ID.BMW_M4_GT4},
+            {"bmw_m6_gt3",KUNOS_ID.BMW_M6_GT3},
+            {"chevrolet_camaro_gt4r",KUNOS_ID.CHEVROLET_CAMARO_GT4R},
+            {"ferrari_488_challenge_evo",KUNOS_ID.FERRARI_488_CHALLENGE_EVO},
+            {"ferrari_488_gt3",KUNOS_ID.FERRARI_488_GT3},
+            {"ferrari_488_gt3_evo",KUNOS_ID.FERRARI_488_GT3_EVO},
+            {"ginetta_g55_gt4",KUNOS_ID.GINETTA_G55_GT4},
+            {"honda_nsx_gt3",KUNOS_ID.HONDA_NSX_GT3},
+            {"honda_nsx_gt3_evo",KUNOS_ID.HONDA_NSX_GT3_EVO},
+            {"jaguar_g3",KUNOS_ID.JAGUAR_G3},
+            {"ktm_xbow_gt4",KUNOS_ID.KTM_XBOW_GT4},
+            {"lamborghini_gallardo_rex",KUNOS_ID.LAMBORGHINI_GALLARDO_REX},
+            {"lamborghini_huracan_gt3",KUNOS_ID.LAMBORGHINI_HURACAN_GT3},
+            {"lamborghini_huracan_gt3_evo",KUNOS_ID.LAMBORGHINI_HURACAN_GT3_EVO},
+            {"lamborghini_huracan_st",KUNOS_ID.LAMBORGHINI_HURACAN_ST},
+            {"lamborghini_huracan_st_evo2",KUNOS_ID.LAMBORGHINI_HURACAN_ST_EVO2},
+            {"lexus_rc_f_gt3",KUNOS_ID.LEXUS_RC_F_GT3},
+            {"maserati_mc_gt4",KUNOS_ID.MASERATI_MC_GT4},
+            {"mclaren_570s_gt4",KUNOS_ID.MCLAREN_570S_GT4},
+            {"mclaren_650s_gt3",KUNOS_ID.MCLAREN_650S_GT3},
+            {"mclaren_720s_gt3",KUNOS_ID.MCLAREN_720S_GT3},
+            {"mercedes_amg_gt3",KUNOS_ID.MERCEDES_AMG_GT3},
+            {"mercedes_amg_gt3_evo",KUNOS_ID.MERCEDES_AMG_GT3_EVO},
+            {"mercedes_amg_gt4",KUNOS_ID.MERCEDES_AMG_GT4},
+            {"nissan_gt_r_gt3_2017",KUNOS_ID.NISSAN_GT_R_GT3_2017},
+            {"nissan_gt_r_gt3_2018",KUNOS_ID.NISSAN_GT_R_GT3_2018},
+            {"porsche_718_cayman_gt4_mr",KUNOS_ID.PORSCHE_718_CAYMAN_GT4_MR},
+            {"porsche_991_gt3_r",KUNOS_ID.PORSCHE_991_GT3_R},
+            {"porsche_991ii_gt3_cup",KUNOS_ID.PORSCHE_991II_GT3_CUP},
+            {"porsche_991ii_gt3_r",KUNOS_ID.PORSCHE_991II_GT3_R},
+            {"porsche_992_gt3_cup",KUNOS_ID.PORSCHE_992_GT3_CUP}
+        };
+    }
+}

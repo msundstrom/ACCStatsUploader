@@ -132,7 +132,7 @@ namespace ACCStatsUploader {
                 var stintLabel = "" + (i - 1);
                 var outLap = "=INDIRECT(\"stint_matrix!B\"&ROW()-1)";
                 var inLap = "=INDIRECT(\"stint_matrix!C\"&ROW()-1)";
-                var stintLaps = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");$C" + actualRow + "-$B" + actualRow + ";\"\")";
+                var stintLaps = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");$C" + actualRow + "-$B" + actualRow + " + 1;\"\")";
                 var stintDuration = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");(INDIRECT(\"stint_matrix!E\"&ROW()-1)-INDIRECT(\"stint_matrix!D\"&ROW()-1))/86400;\"\")";
                 var driver = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");INDEX(UNIQUE(INDIRECT(\"lap_data!C1\"&INDIRECT(\"B\"&ROW())+1&\":C\"&INDIRECT(\"C\"&ROW())+1));1);\"\")";
                 var avgPace = "=IF(AND($B" + actualRow + "<>\"\";$C" + actualRow + "<>\"\");AVERAGE(INDIRECT(\"lap_data!G\"&MATCH(B" + actualRow + ";lap_data!$B$1:$B;0)&\":G\"&MATCH(C" + actualRow + ";lap_data!$B$1:$B;0)))/86400000;\"\")";

@@ -62,9 +62,6 @@ namespace ACCStatsUploader {
                 object inLap = new Formula {
                     value = "=IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!D:D\");INDIRECT(\"pit_stop_data!B:B\") = \"PitOut\";INDIRECT(\"pit_stop_data!A:A\") = \"Race\");$A" + (i + 1) + "-1);\"\")"
                 };
-                if (i == 1) {
-                    inLap = 1;
-                }
 
                 var outLap = new Formula {
                     value = "=IF(INDIRECT(\"B\"&ROW())<>\"\";IFERROR(INDEX(FILTER(INDIRECT(\"pit_stop_data!C:C\");INDIRECT(\"pit_stop_data!B:B\") = \"PitIn\";INDIRECT(\"pit_stop_data!A:A\") = \"Race\");$A" + (i + 1) + ");IFNA(INDEX(FILTER(INDIRECT(\"lap_data!B:B\");INDIRECT(\"lap_data!M:M\") = 0);1)));\"\")"
@@ -73,9 +70,18 @@ namespace ACCStatsUploader {
                 var startTime = new Formula {
                     value = "=IF(AND($B" + (i + 1) + "<>\"\";$C" + (i + 1) + "<>\"\");INDIRECT(\"lap_data!P\"&MATCH($B" + (i + 1) + ";lap_data!$B$1:$B;0));\"\")"
                 };
+
                 var endTime = new Formula {
-                    value = "=IF(AND($B" + (i + 1) + "<>\"\";$C" + (i + 1) + "<>\"\");INDIRECT(\"lap_data!P\"&MATCH($C" + (i + 1) + ";lap_data!$B$1:$B;0));\"\")"
+                    value = "=IF(AND($B" + (i + 1) + "<>\"\";$C" + (i + 1) + "<>\"\");IFNA(INDIRECT(\"pit_stop_data!E\"&MATCH($C2; pit_stop_data!$C$1:$C;0));INDIRECT(\"lap_data!P\"&MATCH($C" + (i + 1) +"; lap_data!$B$1:$B;0)));\"\")"
                 };
+
+                // special case for the first stint
+                if (i == 1) {
+                    inLap = 1;
+                    startTime = new Formula {
+                        value = "=IF(AND($B2<>\"\";$C2<>\"\");INDIRECT(\"lap_data!P\"&MATCH($B2;lap_data!$B$1:$B;0)) - INDIRECT(\"lap_data!G\"&MATCH($B2;lap_data!$B$1:$B;0)) / 1000;\"\")"
+                    };
+                }
 
                 setupRequest.addRequest(this.appendRow(new Cells {
                     new Cell { value = i },

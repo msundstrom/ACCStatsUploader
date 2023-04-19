@@ -17,7 +17,7 @@ namespace ACCStatsUploader.Data {
         private List<float> brakeBiasList = new List<float>();
         private string carModel;
 
-        public ElectronicsInfo(string carModel) { 
+        public ElectronicsInfo(string carModel) {
             this.carModel = carModel;
         }
 
@@ -37,8 +37,7 @@ namespace ACCStatsUploader.Data {
             return getGroupedListOutput(fuelMapList);
         }
 
-        public string averageBrakeBalance() { 
-
+        public string averageBrakeBalance() {
             return brakeBiasList.ToArray().Average().ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
         }
         public void update(Graphics graphics) {
@@ -61,29 +60,29 @@ namespace ACCStatsUploader.Data {
         }
 
         // takes a list of electronic telemetry recordings collected over a lap, and returns a dictionary that groups together identical values and counts their occurrences.
-        private SortedDictionary<string,float> createGroupedDict<T>(List<T> rawElectronics) {
+        private SortedDictionary<string, float> createGroupedDict<T>(List<T> rawElectronics) {
             int totalCount = rawElectronics.Count;
-            var unique = new SortedDictionary<string,float> ();
+            var unique = new SortedDictionary<string, float>();
             foreach (var entry in rawElectronics) {
                 string entryS = entry.ToString();
                 if (!unique.ContainsKey(entryS)) {
                     int occurrence = rawElectronics.FindAll(x => x.Equals(entry)).Count();
-                    float percentage = (float) occurrence / totalCount;
+                    float percentage = (float)occurrence / totalCount;
                     unique.Add(entryS, percentage);
                 }
             }
             return unique;
         }
 
-        string getGroupedListOutput<T>(List<T> input) {
-            string output = "";
-            var dict = createGroupedDict<T>(input);
-            foreach(var item in dict) {
+        string getGroupedListOutput<T>(List<T> rawElectronics) {
+            var dict = createGroupedDict<T>(rawElectronics);
+            List<string> formattedStrings = new List<string>();
+            foreach (var item in dict) {
                 string floatWithDot = item.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture); // converts 0,00000... to 0.00
-                output += $"{item.Key}:{floatWithDot}, ";
+                string entry = $"{item.Key}:{floatWithDot}";
+                formattedStrings.Add(entry);
             }
-            output = output.Remove(output.Length - 2, 1); // remove the last comma
-            return output;
+            return String.Join(", ", formattedStrings);
         }
     }
 }

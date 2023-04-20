@@ -77,6 +77,11 @@ namespace ACCStatsUploader {
                     "Max tyre pressure FR",
                     "Max tyre pressure RL",
                     "Max tyre pressure RR",
+                    "TC",
+                    "TC2",
+                    "ABS",
+                    "Avg Brake Balance",
+                    "Fuel Map"
                 };
             }
         }
@@ -162,6 +167,11 @@ namespace ACCStatsUploader {
                 new Cell { value = lapInfo.tyreInfo.maxPressures().fr },
                 new Cell { value = lapInfo.tyreInfo.maxPressures().rl },
                 new Cell { value = lapInfo.tyreInfo.maxPressures().rr },
+                new Cell { value = lapInfo.electronicsInfo.listTC()},
+                new Cell { value = lapInfo.electronicsInfo.listTC2()},
+                new Cell { value = lapInfo.electronicsInfo.listABS()},
+                new Cell { value = lapInfo.electronicsInfo.averageBrakeBalance()},
+                new Cell { value = lapInfo.electronicsInfo.listFuelMap()},
             }));
 
             await insertLapRequest.execute();
